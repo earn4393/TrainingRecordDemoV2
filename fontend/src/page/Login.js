@@ -5,17 +5,16 @@ import '../styles/Login.css'
 import Swal from 'sweetalert2'
 import { useAuth } from '../context/AuthProvider'
 
-
-
+// ล๊อกอิน
 const Login = () => {
-    const auth = useAuth()
-    const navigate = useNavigate()
-    const location = useLocation()
-    const [user, setUser] = useState('')
-    const [pwd, setPwd] = useState('')
-    const redirectPath = location.state?.path || '/'
+    const auth = useAuth()  // สำหรับใช้ตรวจสอบการเข้าระบบ
+    const navigate = useNavigate() // สำหรับไปหน้าถัดไป
+    const location = useLocation() // path ที่อยู่ปัจจุบัน
+    const [user, setUser] = useState('') // ชื่อผู้ใช้
+    const [pwd, setPwd] = useState('') // รหัสผู้ใช้
+    const redirectPath = location.state?.path || '/'  // ตรวจสอบว่าเป็น path อะไร
 
-
+    // ตรวจสอบว่าชื่อผู้ใช้และรหัสผ่านถูกต้องหรือไม่
     const handleSubmit = (e) => {
         e.preventDefault()
         const login = auth.login({ user, pwd })

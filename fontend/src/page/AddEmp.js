@@ -7,61 +7,47 @@ import addIcon from '@iconify/icons-gridicons/add';
 import axios from "../api/axios";
 import '../styles/Styles.css'
 
-const URL_COUSES = '/get-all-courses-by-search'
-const URL_CANDIDATES = '/get-candidate'
-const URL_EMP = '/get-employee'
-const URL_ADD_EMP = '/add-employee'
+const URL_COUSES = '/get-all-courses-by-search'  //api สำหรับค้นหาหลักสูตร
+const URL_CANDIDATES = '/get-candidate' // api สำหรับเรียกผู้อบรมในหลักสูตร
+const URL_EMP = '/get-employee' // api เรียกดูชื่อพนักงาน
+const URL_ADD_EMP = '/add-employee' // api เพิ่มผู้อบรมลงหลักสูตร
 
 // บันทึกประวัติการเข้าอบรม ฉบับผู้ใช้ทั่วไป
 const AddEmp = () => {
     const userRef = useRef()
-    const [courses, setCouses] = useState([])
-    const [course, setCourse] = useState(null)
-    const [candidates, setCandidates] = useState(null)
-    const [isShow, setIsShow] = useState(false)
-    const [isPop, setIsPop] = useState(false)
-    const [empID, setEmpID] = useState('')
-    const [name, setName] = useState('')
-    const [select, setSelect] = useState('')
-    const [disabled, setDisabled] = useState(false)
-    const [checkList, setCheckList] = useState([false, false, false])
-    const [validated, setValidated] = useState(false);
-    const [invalid, setInValid] = useState(null);
-
-
-    const handleSubmit = (event) => {
-        const form = event.currentTarget;
-        event.preventDefault();
-        event.stopPropagation();
-        if (form.checkValidity() === true & name !== '') {
-            addNewEmp()
-        }
-        setValidated(true);
-    };
+    const [courses, setCouses] = useState([])  //หลักสูตรทั้งหมด
+    const [course, setCourse] = useState(null) //หลักสูตรที่ต้องการบันทึกประวัติการเข้าอบรม
+    const [candidates, setCandidates] = useState(null) // ผู้อบรมที่บันทึกประวัติใน course แล้ว
+    const [isShow, setIsShow] = useState(false) // สถานะว่าจะให้แสดงรายละเอียดหลักสูตรไหม
+    const [isPop, setIsPop] = useState(false) // สถานะว่าจะให้โมเดลแสดงไหม
+    const [empID, setEmpID] = useState('') // รหัสพนักงาน
+    const [name, setName] = useState('') // ชื่อพนักงาน
+    const [select, setSelect] = useState('มาก') // สถานะความเข้าใจของผู้อบรม
+    const [disabled, setDisabled] = useState(false) // สถานะให้กรอกรหัสพนักงานได้หรือไม่
+    const [validated, setValidated] = useState(false); // สถานะการตรวจสอบว่าผู้อบรมกรอกข้อมูลในโมเดลครบไหม
+    const [invalid, setInValid] = useState(null); // สถานะกรอกข้อมูลในโมเดลไม่ครบ
 
     // โหลดข้อมูลหลักสูตรทั้งหมด
     const listCouses = async () => {
-        const resCourses = await axios.post(URL_COUSES)
-        if (resCourses.data.data !== null) {
-            const lst = resCourses.data.data
+        const res = await axios.post(URL_COUSES)
+        if (res.data.data !== null) {
+            const lst = res.data.data
             setCouses(lst)
         }
     }
-
     // โหลดข้อมูลผู้ที่อบรมในหลักสูตรที่เลือกไว้
     const listCandidate = async (id) => {
-        const resCandidate = await axios.post(URL_CANDIDATES, { id: id })
-        setCandidates(resCandidate.data.data)
+        const res = await axios.post(URL_CANDIDATES, { id: id })
+        setCandidates(res.data.data)
     }
-
     // แสดงชื่อตามรหัสพนักงาน
     const showName = async (emp_id) => {
         setEmpID(emp_id)
-        const resEmp = await axios.post(URL_EMP, { id: emp_id })
+        const res = await axios.post(URL_EMP, { id: emp_id })
         if (emp_id.length === 6) {
-            if (resEmp.data.data !== null) {
+            if (res.data.data !== null) {
                 setEmpID(emp_id)
-                setName(`${resEmp.data.data.th_name}/ ${resEmp.data.data.eng_name}`)
+                setName(`${res.data.data.th_name}/ ${res.data.data.eng_name}`)
                 setDisabled(true)
                 setInValid(false)
             } else {
@@ -70,14 +56,14 @@ const AddEmp = () => {
         }
     }
 
+    // reset parameters
     const clearData = () => {
         setEmpID('')
-        setSelect('')
+        setSelect('มาก')
         setName('')
         setInValid(null)
         setValidated(false)
         setDisabled(false)
-        setCheckList([false, false, false])
     }
 
     // เพิ่มรายชื่อผู้เข้าอบรม
@@ -130,7 +116,6 @@ const AddEmp = () => {
         }
         clearData()
     }
-
     // ป๊อปอัพสำหรับบันทึกประวัติผู้เข้าฝึกอบรม
     const modelEmp = () => {
         return (
@@ -180,10 +165,9 @@ const AddEmp = () => {
                                     label="มาก"
                                     name="group1"
                                     type="radio"
-                                    checked={checkList[0]}
+                                    defaultChecked='true'
                                     required
                                     onClick={() => {
-                                        setCheckList([true, false, false])
                                         setSelect('มาก')
                                     }}
                                     className="check-bin"
@@ -193,10 +177,8 @@ const AddEmp = () => {
                                     label="กลาง"
                                     name="group1"
                                     type="radio"
-                                    checked={checkList[1]}
                                     required
                                     onClick={() => {
-                                        setCheckList([false, true, false])
                                         setSelect('กลาง')
                                     }}
                                     className="check-bin"
@@ -206,10 +188,8 @@ const AddEmp = () => {
                                     label="น้อย"
                                     name="group1"
                                     type="radio"
-                                    checked={checkList[2]}
                                     required
                                     onClick={() => {
-                                        setCheckList([false, false, true])
                                         setSelect('น้อย')
                                     }}
                                     className="check-bin"
@@ -231,25 +211,32 @@ const AddEmp = () => {
         )
     }
 
-
     // the item selected
     const handleOnSelect = (item) => {
         setCourse(item)
         listCandidate(item.id)
         setIsShow(true)
     }
+    // ตรวจสอบว่าข้อมูลในการบันทึกประวัติผู้อบรมกรอกครบตามที่กำหนดหรือไม่ ถ้าครบบันทึก
+    const handleSubmit = (event) => {
+        const form = event.currentTarget;
+        event.preventDefault();
+        event.stopPropagation();
+        if (form.checkValidity() === true & name !== '') {
+            addNewEmp()
+        }
+        setValidated(true);
+    };
 
     // ปิดเมนูบาร์เมื่อเข้ายังหน้านี้และโหลดข้อมูลหลักสูตร
     useEffect(() => {
         listCouses()
     }, [])
 
-
     // ให้ curser ชี้ที่ช่องกรอกรหัสพนักงานเมื่อมีการเพิ่มผู้อบรม
     useEffect(() => {
         userRef.current && userRef.current.focus()
     }, [isPop])
-
 
     return (
         <div >
@@ -259,11 +246,11 @@ const AddEmp = () => {
                     {/* ค้นหาหลักสูตร */}
                     <ReactSearchAutocomplete
                         items={courses}
-                        fuseOptions={{ keys: ["id"] }}
+                        fuseOptions={{ keys: ["id", "name"] }}
                         onSelect={handleOnSelect}
                         autoFocus
                         placeholder="Plases Fill Course No"
-                        resultStringKeyName="id"
+                        resultStringKeyName="name"
                         styling={
                             {
                                 backgroundColor: "#D8DBE2",
@@ -276,8 +263,9 @@ const AddEmp = () => {
                 {isShow ?
                     // เมื่อเลือกหลักสูตรได้แล้ว จะแสดงข้อมูลและรายชื่อผู้อบรมที่บันทึกประวัติในหลักสูตรที่เลือกไว้แล้ว
                     <div >
-                        <div className='description-box'>
+                        <div className='wrapp-descript'>
                             <div><label>รหัสหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.id}</b></label></div>
+                            <div className="margin-between-detail" />
                             <div><label>ชื่อหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.name}</b></label></div>
                         </div>
                         <div className='content-bin-addEmp'>
@@ -291,10 +279,11 @@ const AddEmp = () => {
                             {modelEmp()}
                         </div>
                         <div style={{ color: '#6289b5' }}>
+                            {/* จำนวนผู้บันทึกประวัติ */}
                             all candidates : {candidates !== null ? candidates.length : null}
                         </div>
+                        {/* ตารางแสดงผู้อบรมที่บันทึกแล้ว */}
                         <Table striped bordered hover responsive size='sm'>
-                            {/* ตารางแสดงหลักสูตร */}
                             <thead className='header-table'>
                                 <tr>
                                     <th rowSpan="2">ลำดับ</th>
@@ -303,7 +292,6 @@ const AddEmp = () => {
                                     <th colSpan="2">ประเมิน</th>
                                     <th rowSpan="2">วันที่</th>
                                     <th rowSpan="2">หมายเหตุ</th>
-
                                 </tr>
                                 <tr>
                                     <th >ตนเอง</th>
@@ -311,6 +299,7 @@ const AddEmp = () => {
                                 </tr>
                             </thead>
                             <tbody>
+                                {/* ใส่ข้อมูลในตารางแสดงผู้อบรมที่บันทึกแล้ว */}
                                 {candidates && candidates.map((item, index) => {
                                     return (
                                         <tr key={index}>

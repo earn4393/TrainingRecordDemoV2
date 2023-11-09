@@ -9,14 +9,16 @@ import printIcon from '@iconify/icons-material-symbols/print';
 import * as XLSX from 'xlsx'
 import '../styles/Styles.css'
 
-const URL_CANDIDATES = '/get-candidate'
-const URL_COURSE = '/get-course'
+const URL_CANDIDATES = '/get-candidate'  // api สำหรับเรียกผู้อบรมในหลักสูตร
+const URL_COURSE = '/get-course' // api สำหรับเรียกดูหลักสูตรตาม id
 
+// แสดงรายละเอียดหลักสูตร
 const DetailCourse = () => {
-    const course_id = useParams().id
-    const [course, setCourse] = useState(null)
-    const [candidates, setCandidates] = useState(null)
+    const course_id = useParams().id  // รหัสหลักสูตร
+    const [course, setCourse] = useState(null) // ข้อมูลหลักสูคร
+    const [candidates, setCandidates] = useState(null) // รายชื่อผู้บันทึกประวัติอบรม
 
+    // โหลดข้อมูลหลักสูตร
     const listCourse = async () => {
         const resCandidate = await axios.post(URL_CANDIDATES, { id: course_id })
         const resCourse = await axios.post(URL_COURSE, { id: course_id })
@@ -28,7 +30,7 @@ const DetailCourse = () => {
             setCourse(resCourse.data.data)
         }
     }
-
+    // ส่งออกรายชื่อผู้อบรมเป็นไฟล์ excel
     const exportExcel = () => {
         const excel = candidates.map((item, index) => {
             const name = item.th_name.split(" ")
@@ -49,12 +51,10 @@ const DetailCourse = () => {
             XLSX.writeFile(wb, `${course_id}_Emp.xlsx`)
         }
     }
-
-
+    // เริ่มโหลดข้อมูล
     useEffect(() => {
         listCourse()
     }, [])
-
 
     return (
         <div>
@@ -62,43 +62,44 @@ const DetailCourse = () => {
                 <h1 className='head-title'>Report Course</h1>
             </div>
             <Container>
-                <div className="description-box">
-                    <div className="show-detail">
+                <div className="wrapp-descript">
+                    <div className="descript-box">
                         <label>รหัสหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.id}</b></label>
                     </div>
-                    <div className="show-detail">
+                    <div className="descript-box">
                         <label>ชื่อหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.name}</b></label>
                     </div>
-                    <div className="show-detail">
+                    <div className="descript-box">
                         <label>วัตถุประสงค์ : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.aim}</b></label>
                     </div>
-                    <div className="show-detail">
+                    <div className="descript-box">
                         <label>รายละเอียด : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.des}</b></label>
                     </div>
-                    <div className="show-detail">
+                    <div className="descript-box">
                         <label>ชื่อผู้สอน : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.trainer}</b></label>
                     </div>
-                    <div className="show-detail">
+                    <div className="descript-box">
                         <label>วันที่เริ่ม : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.start}</b></label>
                     </div>
-                    <div className="show-detail">
+                    <div className="descript-box">
                         <label>วันสิ้นสุด : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.end}</b></label>
                     </div>
-                    <div className="show-detail">
+                    <div className="descript-box">
                         <label>จำนวนเวลา : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.hr} ชั่วโมง</b></label>
                     </div>
-                    <div className="show-detail">
+                    <div className="descript-box">
                         <label>สถานที่ : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.place}</b></label>
                     </div>
                 </div>
-
                 <div>
                     <div className="content-bin">
+                        {/* ปุ่มส่งออกไฟล์ excel */}
                         <Button className='bin' onClick={exportExcel} >
                             <Icon icon={fileEarmarkExcelFill} width="30" height="30" />
                             &nbsp;Export
                         </Button>
                         <div style={{ margin: '10px' }} />
+                        {/* ปริ้นเป็น PDF */}
                         <Link
                             to={`/report-course/${course_id}`}
                             target='_blank'
@@ -126,6 +127,7 @@ const DetailCourse = () => {
                             </tr>
                         </thead>
                         <tbody>
+                            {/* ใส่ข้อมูลในตารางแสดงผู้อบรมที่บันทึกแล้ว */}
                             {candidates && candidates.map((item, index) => {
                                 return (
                                     <tr key={index}>
@@ -141,7 +143,6 @@ const DetailCourse = () => {
                             })
                             }
                         </tbody>
-
                     </Table>
                 </div >
             </Container >

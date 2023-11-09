@@ -5,35 +5,41 @@ import axios from '../api/axios';
 import '../styles/ReportEmp.css'
 import '../styles/Styles.css'
 
-const URL_EMP = '/get-employee'
-const URL_COURSE = '/get-all-my-course'
+const URL_EMP = '/get-employee' // api เรียกดูชื่อพนักงาน
+const URL_COURSE = '/get-all-my-course' // api เรียกหลักสูตรทั้งหมดที่พนักงานคนนี้ฝึก
+const URL_FORM = '/get-form' //api เรียกดู division ของฟอร์ม
 
 const ReportEmp = () => {
-    const { id } = useParams()
-    const [emp, setEmp] = useState(null)
-    const [myTrain, setMyTrain] = useState(null)
+    const { id } = useParams() // รับรหัสหลักสูตรจากหน้าก่อนหน้า
+    const [div, setDIV] = useState('') // รหัส division
+    const [emp, setEmp] = useState(null) // ข้อมูลพนักงาน
+    const [myTrain, setMyTrain] = useState(null) //ข้อมูลหลักสูตรทั้งหมดที่พนักงานเรียน
 
+    // โหลดข้อมูลพนักงาน หลักสูตร และฟอร์ม
     const dataEmp = async () => {
         const resEmp = await axios.post(URL_EMP, { id: id })
         const resCourse = await axios.post(URL_COURSE, { id: id })
+        const resForm = await axios.post(URL_FORM, { id: 'FO-ADX-003' })
         if (resEmp.data.data != null) {
             setEmp(resEmp.data.data)
         }
         if (resCourse.data.data != null) {
             setMyTrain(resCourse.data.data)
         }
+        if (resForm.data != null) {
+            setDIV(resForm.data)
+        }
     }
-
+    // เริ่มโหลดข้อมูล
     useEffect(() => {
         dataEmp()
     })
-
+    // สั่งให้ปริ้นเอกสาร
     useEffect(() => {
         setTimeout(() => {
             window.print();
         }, 500)
     }, [])
-
 
     return (
         <div className='wrapp-form003'>
@@ -45,7 +51,7 @@ const ReportEmp = () => {
                 </h5>
                 <br />
                 {emp ?
-                    <Container fluid='xl' >
+                    <Container fluid='xl'>
                         <Form.Group as={Row}>
                             <Col xs='auto'>
                                 <Form.Label className='text-bold'>ชื่อ - สกุล</Form.Label>
@@ -120,44 +126,56 @@ const ReportEmp = () => {
                     </Container>
                     : null}
             </div>
-            <h5  >
+            <h5 >
                 ประวัติการฝึกอบรมภายในและภายนอกบริษัทฯ
             </h5>
-            <Table bordered size='sm' className='table-report-emp'>
-                <thead>
-                    <tr >
-                        <th rowSpan="2" >ลำดับ</th>
-                        <th rowSpan="2" >วัน/เดือน/ปี</th>
-                        <th rowSpan="2" >หัวข้อ/เรื่องหลักสูตร</th>
-                        <th colSpan="2" >ระยะเวลา</th>
-                        <th rowSpan="2" >สถานที่จัดฝึกอบรม</th>
-                    </tr>
-                    <tr>
-                        <th >วัน</th>
-                        <th >ชั่วโมง</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {myTrain && myTrain.map((item, index) => {
-                        return (
-                            <tr key={index}>
-                                <td >{index + 1}</td>
-                                <td >{item.date}</td>
-                                <td className='col-left' >{item.name}</td>
-                                <td >-</td>
-                                <td >{item.hr}</td>
-                                <td >{item.place}</td>
-                            </tr>
-                        )
-                    })
-                    }
-                </tbody>
-            </Table >
-            <div className='footer-text'>
-                A-3:ASI.08.07.28
+            <div className='test'>
+                <Table className='report-emp-table' size='sm' style={{ marginTop: '-25px' }}>
+                    <thead >
+                        <tr style={{ height: '30px' }} />
+                        <tr >
+                            <th rowSpan="2" >ลำดับ</th>
+                            <th rowSpan="2" >วัน/เดือน/ปี</th>
+                            <th rowSpan="2" >หัวข้อ/เรื่องหลักสูตร</th>
+                            <th colSpan="2" >ระยะเวลา</th>
+                            <th rowSpan="2" >สถานที่จัดฝึกอบรม</th>
+                        </tr>
+                        <tr>
+                            <th >วัน</th>
+                            <th >ชั่วโมง</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {myTrain && myTrain.map((item, index) => {
+                            let size = '14px'
+                            if (item.name.length > 90) {
+                                size = '12px'
+                            }
+                            return (
+                                <tr key={index}>
+                                    <td >{index + 1}</td>
+                                    <td >{item.date}</td>
+                                    <td className='col-left' style={{ fontSize: size }}>{item.name}</td>
+                                    <td >-</td>
+                                    <td >{item.hr}</td>
+                                    <td >{item.place}</td>
+                                </tr>
+                            )
+                        })
+                        }
+                    </tbody>
+                    <tfoot  >
+                        <tr >
+                            <td colSpan='6' className='footer-text'>
+                                {div}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </Table >
             </div>
         </div >
     )
+
 }
 
 export default ReportEmp;

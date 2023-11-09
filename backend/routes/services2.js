@@ -125,7 +125,7 @@ app.post('/get-candidate', (req, res) => {
             COALESCE(Remark,'') AS remark , department_description AS dep , POSITION_DESCRIPTION AS pos
             FROM tbl_Transaction FULL JOIN tbl_EMPLOYEE 
             ON tbl_Transaction.EMPLOYEE_NO  = tbl_EMPLOYEE.EMPLOYEE_NO
-            where CourseID = '${id}' ORDER BY EntryDate ASC`
+            where CourseID = '${id}' ORDER BY EntryDate DESC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -412,6 +412,31 @@ app.post('/get-all-courses-per-page', (req, res) => {
         console.log(`get-all-courses connect error : ${err}`)
     })
 })
+
+app.post('/get-form', (req, res) => {
+    const id = req.body.id
+    conn.connect().then(() => {
+        var request = new sql.Request(conn)
+        var query = `SELECT Division as div  FROM [TrainDB].[dbo].[Form] 
+                    where Form_ID = '${id}'`
+
+        request.query(query, (err, records) => {
+            let div = null
+            if (err == null && records.rowsAffected[0] > 0) {
+                div = records.recordset[0].div
+            } else {
+                console.log(`get-form query err: ${err}`)
+            }
+            // console.log(data)
+            res.send(div)
+
+        })
+    }).catch((err) => {
+        console.log(`get-form connect error : ${err}`)
+    })
+
+});
+
 
 
 

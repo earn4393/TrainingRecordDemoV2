@@ -8,32 +8,33 @@ import axios from '../api/axios';
 import '../styles/ReportCourse.css'
 import '../styles/Styles.css'
 
-const URL_COURSE = '/get-course'
-const URL_TRAINEE = '/get-candidate'
-const URL_TRAINER = '/get-employee'
+const URL_COURSE = '/get-course' // api เรียกดูหลักสูตร
+const URL_TRAINEE = '/get-candidate' // api สำหรับเรียกผู้อบรมในหลักสูตร 
+const URL_TRAINER = '/get-employee' // api เรียกดูชื่อพนักงาน
+const URL_FORM = '/get-form'  //api เรียกดู division ของฟอร์ม
 
+// ปริ้นฟอร์ม FO-ADX-002
 const ReportCourse = () => {
-    const { id } = useParams()
-    const [course, setCourse] = useState([])
-    const [candidates, setCandidates] = useState([])
-    const [trainer, setTrainer] = useState([])
+    const { id } = useParams()  // รับรหัสหลักสูตรจากหน้าก่อนหน้า
+    const [div, setDIV] = useState('') // รหัส division
+    const [course, setCourse] = useState([]) // ข้อมูลหลักสูตร id
+    const [candidates, setCandidates] = useState([]) // ผู้อบรมที่บันทึกประวัติใน course แล้ว
+    const [trainer, setTrainer] = useState([]) // ข้อมูลของผู้ฝึกอบรม
     const componentRef = useRef()
 
 
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-        documentTitle: 'report-course',
-    })
-
-
+    // โหลดข้อมูลหลักสูตร ผู้ฝึกอบรม และฟอร์ม
     const dataCourse = async () => {
         const resTrainee = await axios.post(URL_TRAINEE, { id: id })
         const resCourse = await axios.post(URL_COURSE, { id: id })
+        const resForm = await axios.post(URL_FORM, { id: 'FO-ADX-002' })
 
         if (resTrainee.data.data != null) {
             let data = resTrainee.data.data
             data.map((item) => {
-                item.pos = item.pos.slice(item.pos.indexOf('(') + 1, item.pos.length - 1)
+                if (item.pos !== null) {
+                    item.pos = item.pos.slice(item.pos.indexOf('(') + 1, item.pos.length - 1)
+                }
             })
             setCandidates(data)
         }
@@ -42,8 +43,12 @@ const ReportCourse = () => {
             setCourse(resCourse.data.data)
             dataTrainer(trainer_id)
         }
+        if (resForm.data != null) {
+            console.log(resForm.data)
+            setDIV(resForm.data)
+        }
     }
-
+    // โหลดข้อมูลผู้ฝึกอบรม
     const dataTrainer = async (id) => {
         const resTrainer = await axios.post(URL_TRAINER, { id: id })
         if (resTrainer.data.data != null) {
@@ -51,36 +56,36 @@ const ReportCourse = () => {
             setTrainer(data)
         }
     }
-
-
+    // เริ่มโหลดข้อมูลหลักสูตร
     useEffect(() => {
         dataCourse()
     }, [])
 
-
     return (
-        <div>
+        <div >
             <div className="wrapp-print-bin">
                 <h5 style={{ color: 'red' }}>**กรุณาติ๊กเครื่องหมายถูกใน checkbox ก่อนปริ้น</h5>
-                <Button className='bin' onClick={handlePrint}>
+                {/* ปุ่มปริ้น */}
+                <Button className='bin' onClick={() => window.print()}>
                     <Icon icon={printIcon} width="30" height="30" />
                     &nbsp;Print
                 </Button>
             </div>
-
-            <Container fluid='xl' className="warapp-report-course" ref={componentRef}>
-                <div>
+            {/* ฟอร์มเอกสาร */}
+            <Container fluid='xl' style={{ fontSize: '12px' }} ref={componentRef}>
+                <div style={{ marginBottom: '30px' }}>
                     <h6 className="header-train">
                         บันทึกการฝึกอบรม <br /> Training
                         record
                     </h6>
+                    <div className='header-form002'>FO-ADX-002</div>
                     <div className="refNo">
                         <div>Ref No. :</div>
                         <div className='line-dash'></div>
                     </div>
                 </div>
                 {course ?
-                    <Container fluid='xxl'>
+                    <Container fluid='xxl' >
                         <Form.Group className="md-5" as={Row}>
                             <Form.Label className='text-bold' as={Col} xs='auto'>เรื่องที่อบรม (Training item)</Form.Label>
                             <Form.Text className='line-dash' as={Col}>{course.name}</Form.Text>
@@ -143,7 +148,6 @@ const ReportCourse = () => {
 
                             <Form.Label className='text-bold' as={Col} xs='auto'>แผนก (Section) :</Form.Label>
                             <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{trainer.dep != null ? trainer.dep : '-'}</Form.Text>
-
                             <Form.Label className='text-bold' as={Col} xs='auto'>ฝ่าย (Department) :</Form.Label>
                             <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{trainer.div != null ? trainer.div : '-'}</Form.Text>
                         </Form.Group>
@@ -151,7 +155,6 @@ const ReportCourse = () => {
                             <Col xs='4' />
                             <Form.Label className='text-bold' as={Col} xs='auto'>ตำแหน่ง (Position) :</Form.Label>
                             <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{trainer.pos != null ? trainer.pos : '-'}</Form.Text>
-
                             <Form.Label className='text-bold' as={Col} xs='auto'>ลำดับขั้น (Qualification) :</Form.Label>
                             <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{trainer.cate != null ? trainer.cate : '-'}</Form.Text>
                         </Form.Group>
@@ -160,7 +163,7 @@ const ReportCourse = () => {
                             <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{course.des != null ? course.des : '-'}</Form.Text>
                         </Form.Group>
                         <Form.Group className="md-5" as={Row}>
-                            <Form.Label className='text-bold' as={Col} xs='auto'>ผู้ฝึกอบรม (Trainer) :</Form.Label>
+                            <Form.Label className='text-bold' as={Col} xs='auto'>วิธีที่ใช้ในการประเมิน (Method To Appraisal) :</Form.Label>
                             <Form.Group as={Col} xs='auto'>
                                 <Form.Check
                                     label=" ผลงาน/การปฎิบัติงาน (performance)"
@@ -188,20 +191,14 @@ const ReportCourse = () => {
                         <Form.Group className="md-5" as={Row}>
                             <Form.Label className='text-bold' as={Col} xs='auto'>วันที่ฝึกอบรม (Training date) :</Form.Label>
                             <Form.Text className='line-dash' as={Col}>{course.start} - {course.end}</Form.Text>
-
                             <Form.Label className='text-bold' as={Col} xs='auto'>ผู้ฝึกอบรมใช้เวลาในการฝึกอบรม (Period of time training) </Form.Label>
-
                             <Form.Text className='line-dash' as={Col} xs='auto'>-</Form.Text>
                             <Form.Label className='text-bold' as={Col} xs='auto'>วัน (day) </Form.Label>
-
                             <Form.Text className='line-dash' as={Col} xs='auto'>{course.hr}</Form.Text>
                             <Form.Label className='text-bold' as={Col} xs='auto'>ชั่วโมง (Hr)</Form.Label>
-
                         </Form.Group>
                         <Form.Group className="md-5" as={Row}>
-
                             <Col xs='9' />
-
                             <Form.Text className='line-dash' as={Col} xs='auto'>-</Form.Text>
                             <Form.Label className='text-bold' as={Col} xs='auto'>นาที (min)</Form.Label>
                         </Form.Group>
@@ -211,8 +208,9 @@ const ReportCourse = () => {
                     <div>ผู้รับการฝึกอบรม (Trainee)</div>
                 </div>
                 <div className="wrapp-table">
-                    <Table bordered size='sm'>
-                        <thead>
+                    <Table className="report-course-table" size='sm' style={{ marginTop: '-25px' }}>
+                        <thead >
+                            <tr style={{ height: '30px' }} />
                             <tr>
                                 <th rowSpan="2">ลำดับที่ No</th>
                                 <th rowSpan="2">รหัส (CODE)</th>
@@ -253,59 +251,70 @@ const ReportCourse = () => {
                                 )
                             })
                             }
+                            <tr className="">
+                                <td colSpan='2' style={{ border: 'none', textAlign: 'left' }}>
+                                    <p>*หมายเหตุ : </p>
+                                </td>
+                                <td colSpan='4' style={{ border: 'none', textAlign: 'left' }}>
+                                    <p>ระดับความเข้าใจ (ประเมินตนเอง) :</p>
+                                    <p>
+                                        เข้าใจ = มีความเข้าใจในสิ่งที่ผู้สอนอบรม <br />
+                                        เข้าใจปานกลาง = มีความเข้าใจบ้างในสิ่งที่ผู้สอนอบรม <br />
+                                        ไม่เข้าใจ = ไม่มีความเข้าใจเลยในสิ่งที่ผู้สอนอบรม
+                                    </p>
+                                </td>
+                                <td colSpan='6' style={{ border: 'none', textAlign: 'left' }}>
+                                    <p>ผลการประเมินระดับความเข้าใจโดยผู้สอน</p>
+                                    <Table bordered size='sm'>
+                                        <thead>
+                                            <tr>
+                                                <th>A</th>
+                                                <th>B</th>
+                                                <th>C</th>
+                                                <th>D</th>
+                                                <th>F</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>100%-96%</td>
+                                                <td>95%-91%</td>
+                                                <td>90%-86%</td>
+                                                <td>85%-80%</td>
+                                                <td>&lt; 80%</td>
+                                            </tr>
+                                            <tr>
+                                                <td colSpan="6">หมายเหตุ : กรณีได้คะแนน &lt; 80% ต้องทำการ Re-Training ใหม่ อีกครั้ง</td>
+                                            </tr>
+                                        </tbody>
+                                    </Table>
+                                </td>
+                            </tr>
+                            <tr className="break-page">
+                                <td colSpan='6' style={{ border: 'none' }}>
+                                    <div className="sign">
+                                        <div className="line"></div>
+                                        <div>Trainer sign</div>
+                                        <div >..................../..................../....................</div>
+                                    </div>
+                                </td>
+                                <td colSpan='6' style={{ border: 'none' }}>
+                                    <div className="sign">
+                                        <div className="line"></div>
+                                        <div>DM./DDM./SM.</div>
+                                        <div >..................../..................../....................</div>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
+                        <tfoot >
+                            <tr >
+                                <td colSpan='12' className='footer-text' style={{ border: 'none' }}>
+                                    {div}
+                                </td>
+                            </tr>
+                        </tfoot>
                     </Table>
-                </div>
-                <div className='break-page'>
-                    <div className="wrapp-rate">
-                        <p>*หมายเหตุ : </p>
-                        <div>
-                            <p>ระดับความเข้าใจ (ประเมินตนเอง) :</p>
-                            <p>
-                                เข้าใจ = มีความเข้าใจในสิ่งที่ผู้สอนอบรม <br />
-                                เข้าใจปานกลาง = มีความเข้าใจบ้างในสิ่งที่ผู้สอนอบรม <br />
-                                ไม่เข้าใจ = ไม่มีความเข้าใจเลยในสิ่งที่ผู้สอนอบรม
-                            </p>
-                        </div>
-                        <div>
-                            <p>ผลการประเมินระดับความเข้าใจโดยผู้สอน</p>
-                            <Table bordered size='sm'>
-                                <thead>
-                                    <tr>
-                                        <th>A</th>
-                                        <th>B</th>
-                                        <th>C</th>
-                                        <th>D</th>
-                                        <th>F</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>100%-96%</td>
-                                        <td>95%-91%</td>
-                                        <td>85%-80%</td>
-                                        <td>90%-86%</td>
-                                        <td>&lt; 80%</td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan="6">หมายเหตุ : กรณีได้คะแนน &lt; 80% ต้องทำการ Re-Training ใหม่ อีกครั้ง</td>
-                                    </tr>
-                                </tbody>
-                            </Table>
-                        </div>
-                    </div>
-                    <div className="wrapp-sign">
-                        <div className="sign">
-                            <div className="line"></div>
-                            <div>Trainer sign</div>
-                            <div >..................../..................../....................</div>
-                        </div>
-                        <div className="sign">
-                            <div className="line"></div>
-                            <div>DM./DDM./SM.</div>
-                            <div >..................../..................../....................</div>
-                        </div>
-                    </div>
                 </div>
             </Container>
         </div >

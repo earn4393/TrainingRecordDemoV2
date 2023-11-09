@@ -1,18 +1,23 @@
 .header-form003 {
-  text-align: right;
   margin-top: 1%;
   font-size: 14px;
+  position: fixed;
+  top: 0px;
+  right: 15px;
 }
 
 .wrapp-form003 {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin: 10px;
+  font-size: 12px;
 }
 
 .section-head {
   border: 2px solid #000;
   padding-bottom: 20px;
+  margin-top: 30px;
 }
 
 .text-head {
@@ -23,7 +28,6 @@
 
 .text-bold {
   font-weight: bold;
-  font-size: 12px;
 }
 
 .line-dash {
@@ -31,17 +35,13 @@
   font-size: 14px;
 }
 
-
-.table-report-emp {
-  font-size: 14px;
+.report-emp-table thead th,
+.report-emp-table tbody td {
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: #D8D9DA;
 }
 
 .footer-text {
-  position: fixed;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  margin-bottom: 0px;
   text-align: right;
-  font-size: 12px;
 }

@@ -9,54 +9,31 @@ import deleteIcon from '@iconify/icons-material-symbols/delete';
 import checkOne from '@iconify/icons-icon-park-solid/check-one';
 import '../styles/Styles.css'
 
-const URL_COUSES = '/get-all-courses-by-search'
-const URL_CANDIDATES = '/get-candidate'
-const URL_EMP = '/get-employee'
-const URL_ADD_EMP = '/add-employee'
-const URL_DEL_CADIDATE = '/delete-cadidate'
-const URL_UPATE_CAIDATE = '/update-cadidate'
-const URL_DEL_TST = '/delete-transaction-by-course'
+const URL_COUSES = '/get-all-courses-by-search' //api สำหรับค้นหาหลักสูตร
+const URL_CANDIDATES = '/get-candidate' // api สำหรับเรียกผู้อบรมในหลักสูตร
+const URL_EMP = '/get-employee' // api เรียกดูชื่อพนักงาน
+const URL_ADD_EMP = '/add-employee' // api เพิ่มผู้อบรมลงหลักสูตร
+const URL_DEL_CADIDATE = '/delete-cadidate' // api ลบผู้ฝึกอบรม
+const URL_UPATE_CAIDATE = '/update-cadidate' // api ประเมินผู้อบรมโดยผู้สอน
+const URL_DEL_TST = '/delete-transaction-by-course' // api ลบพนักงานอยู่ในหลักสูตรทั้งหมด
 
-// // บันทึกประวัติการเข้าอบรม ฉบับแอดมิน
+// บันทึกประวัติการเข้าอบรม ฉบับแอดมิน
 const AddEmpAdmin = () => {
     const userRef = useRef()
-    const [courses, setCouses] = useState([])
-    const [course, setCourse] = useState(null)
-    const [candidates, setCandidates] = useState(null)
-    const [isShow, setIsShow] = useState(false)
-    const [isPopNew, setIsPopNew] = useState(false)
-    const [isPopEditAll, setIsPopEditAll] = useState(false)
-    const [empID, setEmpID] = useState('')
-    const [name, setName] = useState('')
-    const [select1, setSelect1] = useState('')
-    const [select2, setSelect2] = useState('')
-    const [remark, setRemark] = useState('')
-    const [disabled, setDisabled] = useState(false)
-    const [checkList1, setCheckList1] = useState([false, false, false])
-    const [checkList2, setCheckList2] = useState([false, false, false, false, false])
-    const [validated, setValidated] = useState(false);
-    const [invalid, setInValid] = useState(null);
-
-
-    const handleSubmit = (event) => {
-        const form = event.currentTarget;
-        event.preventDefault();
-        event.stopPropagation();
-        if (form.checkValidity() === true & name !== '') {
-            addNewEmp()
-        }
-        setValidated(true);
-    };
-
-    const handleSubmit2 = (event) => {
-        const form = event.currentTarget;
-        event.preventDefault();
-        event.stopPropagation();
-        if (form.checkValidity() === true & name !== '') {
-            editAllEmp()
-        }
-        setValidated(true);
-    };
+    const [courses, setCouses] = useState([]) //หลักสูตรทั้งหมด
+    const [course, setCourse] = useState(null) //หลักสูตรที่ต้องการบันทึกประวัติการเข้าอบรม
+    const [candidates, setCandidates] = useState(null) // ผู้อบรมที่บันทึกประวัติใน course แล้ว
+    const [isShow, setIsShow] = useState(false) // สถานะว่าจะให้แสดงรายละเอียดหลักสูตรไหม
+    const [isPopNew, setIsPopNew] = useState(false) // สถานะว่าจะให้โมเดลบันทึกผู้อบรมแสดงไหม
+    const [isPopEditAll, setIsPopEditAll] = useState(false) // สถานะว่าจะให้โมเดลประเมินผู้อบรมแสดงไหม
+    const [empID, setEmpID] = useState('') // รหัสพนักงาน
+    const [name, setName] = useState('') // ชื่อพนักงาน
+    const [select1, setSelect1] = useState('มาก') // สถานะความเข้าใจของผู้อบรม
+    const [select2, setSelect2] = useState('A') // สถานะความเข้าใจของผู้สอน
+    const [remark, setRemark] = useState('') // หมายเหตุ
+    const [disabled, setDisabled] = useState(false) // สถานะให้กรอกรหัสพนักงานได้หรือไม่
+    const [validated, setValidated] = useState(false); // สถานะการตรวจสอบว่าผู้อบรมกรอกข้อมูลในโมเดลครบไหม
+    const [invalid, setInValid] = useState(null); // สถานะกรอกข้อมูลในโมเดลไม่ครบ
 
 
     // โหลดข้อมูลหลักสูตรทั้งหมด
@@ -66,13 +43,11 @@ const AddEmpAdmin = () => {
             setCouses(resCourses.data.data)
         }
     }
-
     // โหลดข้อมูลผู้ที่อบรมในหลักสูตรที่เลือกไว้
     const listCandidate = async (id) => {
         const resCandidate = await axios.post(URL_CANDIDATES, { id: id })
         setCandidates(resCandidate.data.data)
     }
-
     // แสดงชื่อตามรหัสพนักงาน
     const showName = async (emp_id) => {
         setName('')
@@ -93,15 +68,12 @@ const AddEmpAdmin = () => {
     const clearData = () => {
         setEmpID('')
         setName('')
-        setSelect1('')
-        setSelect2('')
-        setRemark('')
+        setSelect1('มาก')
+        setSelect2('A')
         setRemark('')
         setDisabled(false)
         setValidated(false)
         setInValid(null)
-        setCheckList1([false, false, false])
-        setCheckList2([false, false, false, false, false])
     }
 
     // เพิ่มรายชื่อผู้เข้าอบรม
@@ -129,7 +101,7 @@ const AddEmpAdmin = () => {
                     }, 300)
                 })
                 listCandidate(course.id)
-                setIsPopNew(false)
+
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -156,7 +128,6 @@ const AddEmpAdmin = () => {
         }
         clearData()
     }
-
     // แก้ไขรายชื่อผู้เข้าอบรม
     const editAllEmp = async () => {
         const data = {
@@ -211,7 +182,6 @@ const AddEmpAdmin = () => {
         }
         clearData()
     }
-
     // ลบรายชื่อผู้เข้าอบรม
     const delCadidate = async (emp_id) => {
         const data = { emp_id: emp_id, course_id: course.id }
@@ -236,7 +206,20 @@ const AddEmpAdmin = () => {
 
         }
     }
-
+    // ยืนยันลบผู้อบรม
+    const showConfirmButton = (emp_id) => {
+        Swal.fire({
+            icon: 'question',
+            title: `ต้องการลบผู้อบรม ${emp_id} หรือไม่`,
+            showConfirmButton: true,
+            showCancelButton: true,
+        }).then((reusult) => {
+            if (reusult.isConfirmed) {
+                delCadidate(emp_id)
+            }
+        })
+    }
+    // ลบรายชื่อผู้อบรมทั้งหมด
     const delAllCadidate = async () => {
         const resDelTst = await axios.post(URL_DEL_TST, { id: course.id })
         if (resDelTst.data.code === 200) {
@@ -257,21 +240,7 @@ const AddEmpAdmin = () => {
         }
 
     }
-
-    // ยืนยันลบผู้อบรมหรือไม่
-    const showConfirmButton = (emp_id) => {
-        Swal.fire({
-            icon: 'question',
-            title: `ต้องการลบผู้อบรม ${emp_id} หรือไม่`,
-            showConfirmButton: true,
-            showCancelButton: true,
-        }).then((reusult) => {
-            if (reusult.isConfirmed) {
-                delCadidate(emp_id)
-            }
-        })
-    }
-
+    // ยืนยันลบผู้อบรมทั้งหมด
     const showConfirmButton2 = () => {
         Swal.fire({
             icon: 'question',
@@ -285,10 +254,8 @@ const AddEmpAdmin = () => {
         })
     }
 
-
-
     // ป๊อปอัพสำหรับบันทึกประวัติผู้เข้าอบรม
-    const PopUpNewEmp = () => {
+    const ModelNewEmp = () => {
         return (
             <Modal
                 show={isPopNew}
@@ -336,10 +303,9 @@ const AddEmpAdmin = () => {
                                     label="มาก"
                                     name="group1"
                                     type="radio"
-                                    checked={checkList1[0]}
+                                    defaultChecked='true'
                                     required
                                     onClick={() => {
-                                        setCheckList1([true, false, false])
                                         setSelect1('มาก')
                                     }}
                                     className="check-bin"
@@ -349,10 +315,8 @@ const AddEmpAdmin = () => {
                                     label="กลาง"
                                     name="group1"
                                     type="radio"
-                                    checked={checkList1[1]}
                                     required
                                     onClick={() => {
-                                        setCheckList1([false, true, false])
                                         setSelect1('กลาง')
                                     }}
                                     className="check-bin"
@@ -362,10 +326,8 @@ const AddEmpAdmin = () => {
                                     label="น้อย"
                                     name="group1"
                                     type="radio"
-                                    checked={checkList1[2]}
                                     required
                                     onClick={() => {
-                                        setCheckList1([false, false, true])
                                         setSelect1('น้อย')
                                     }}
                                     className="check-bin"
@@ -380,9 +342,8 @@ const AddEmpAdmin = () => {
                                     label="A"
                                     name="group2"
                                     type="radio"
-                                    checked={checkList2[0]}
+                                    defaultChecked='true'
                                     onClick={() => {
-                                        setCheckList2([true, false, false, false, false])
                                         setSelect2('A')
                                     }}
                                     className="check-bin"
@@ -392,9 +353,7 @@ const AddEmpAdmin = () => {
                                     label="B"
                                     name="group2"
                                     type="radio"
-                                    checked={checkList2[1]}
                                     onClick={() => {
-                                        setCheckList2([false, true, false, false, false])
                                         setSelect2('B')
                                     }}
                                     className="check-bin"
@@ -404,9 +363,7 @@ const AddEmpAdmin = () => {
                                     label="C"
                                     name="group2"
                                     type="radio"
-                                    checked={checkList2[2]}
                                     onClick={() => {
-                                        setCheckList2([false, false, true, false, false])
                                         setSelect2('C')
                                     }}
                                     className="check-bin"
@@ -416,9 +373,7 @@ const AddEmpAdmin = () => {
                                     label="D"
                                     name="group2"
                                     type="radio"
-                                    checked={checkList2[3]}
                                     onClick={() => {
-                                        setCheckList2([false, false, false, true, false])
                                         setSelect2('D')
                                     }}
                                     className="check-bin"
@@ -428,9 +383,7 @@ const AddEmpAdmin = () => {
                                     label="E"
                                     name="group2"
                                     type="radio"
-                                    checked={checkList2[4]}
                                     onClick={() => {
-                                        setCheckList2([false, false, false, false, true])
                                         setSelect2('E')
                                     }}
                                     className="check-bin"
@@ -463,8 +416,8 @@ const AddEmpAdmin = () => {
             </Modal>
         )
     }
-
-    const PopUpEditAllEmp = () => {
+    // ป๊อปอัพสำหรับประเมินผู้อบรมโดยผู้สอน
+    const ModelEditAllEmp = () => {
         return (
             <Modal
                 show={isPopEditAll}
@@ -513,9 +466,8 @@ const AddEmpAdmin = () => {
                                     name="group2"
                                     type="radio"
                                     required
-                                    checked={checkList2[0]}
+                                    defaultChecked='true'
                                     onClick={() => {
-                                        setCheckList2([true, false, false, false, false])
                                         setSelect2('A')
                                     }}
                                     className="check-bin"
@@ -526,9 +478,7 @@ const AddEmpAdmin = () => {
                                     name="group2"
                                     type="radio"
                                     required
-                                    checked={checkList2[1]}
                                     onClick={() => {
-                                        setCheckList2([false, true, false, false, false])
                                         setSelect2('B')
                                     }}
                                     className="check-bin"
@@ -539,9 +489,7 @@ const AddEmpAdmin = () => {
                                     name="group2"
                                     type="radio"
                                     required
-                                    checked={checkList2[2]}
                                     onClick={() => {
-                                        setCheckList2([false, false, true, false, false])
                                         setSelect2('C')
                                     }}
                                     className="check-bin"
@@ -552,9 +500,7 @@ const AddEmpAdmin = () => {
                                     name="group2"
                                     type="radio"
                                     required
-                                    checked={checkList2[3]}
                                     onClick={() => {
-                                        setCheckList2([false, false, false, true, false])
                                         setSelect2('D')
                                     }}
                                     className="check-bin"
@@ -565,9 +511,7 @@ const AddEmpAdmin = () => {
                                     name="group2"
                                     type="radio"
                                     required
-                                    checked={checkList2[4]}
                                     onClick={() => {
-                                        setCheckList2([false, false, false, false, true])
                                         setSelect2('E')
                                     }}
                                     className="check-bin"
@@ -601,25 +545,41 @@ const AddEmpAdmin = () => {
         )
     }
 
-
     // the item selected
     const handleOnSelect = (item) => {
         setCourse(item)
         listCandidate(item.id)
         setIsShow(true)
     }
+    // ตรวจสอบว่าข้อมูลในการบันทึกประวัติผู้อบรมกรอกครบตามที่กำหนดหรือไม่ ถ้าครบบันทึก
+    const handleSubmit = (event) => {
+        const form = event.currentTarget;
+        event.preventDefault();
+        event.stopPropagation();
+        if (form.checkValidity() === true & name !== '') {
+            addNewEmp()
+        }
+        setValidated(true);
+    };
+    // ตรวจสอบว่าข้อมูลในการประเมินอบรมกรอกครบตามที่กำหนดหรือไม่ ถ้าครบบันทึก
+    const handleSubmit2 = (event) => {
+        const form = event.currentTarget;
+        event.preventDefault();
+        event.stopPropagation();
+        if (form.checkValidity() === true & name !== '') {
+            editAllEmp()
+        }
+        setValidated(true);
+    };
 
-
-
-    // ปิดเมนูบาร์เมื่อเข้ายังหน้านี้และโหลดข้อมูลหลักสูตร
+    // เริ่มโหลดข้อมูล
     useEffect(() => {
         listCouses()
     }, [])
-
+    // ให้เมาส์โฟกัสที่ช่องกรอกรหัสพนักงาน
     useEffect(() => {
         userRef.current && userRef.current.focus()
     }, [isPopNew, isPopEditAll])
-
 
 
     return (
@@ -630,11 +590,11 @@ const AddEmpAdmin = () => {
                     {/* ค้นหาหลักสูตร */}
                     <ReactSearchAutocomplete
                         items={courses}
-                        fuseOptions={{ keys: ["id"] }}
+                        fuseOptions={{ keys: ["id", "name"] }}
                         onSelect={handleOnSelect}
                         autoFocus
                         placeholder="Plases Fill Course No"
-                        resultStringKeyName="id"
+                        resultStringKeyName="name"
                         styling={
                             {
                                 backgroundColor: "#D8DBE2",
@@ -645,8 +605,9 @@ const AddEmpAdmin = () => {
             </div>
             <Container>
                 {isShow ?
+                    // เมื่อเลือกหลักสูตรได้แล้ว จะแสดงข้อมูลและรายชื่อผู้อบรมที่บันทึกประวัติในหลักสูตรที่เลือกไว้แล้ว
                     <div >
-                        <div className='description-box' style={{ marginBottom: '20px' }}>
+                        <div className='wrapp-descript' style={{ marginBottom: '20px' }}>
                             <div ><label>รหัสหลักสูตร : &nbsp;<b style={{ color: '#6289b5' }}>{course && course.id}</b></label></div>
                             <div className="margin-between-detail" />
                             <div ><label>ชื่อหลักสูตร : &nbsp;<b style={{ color: '#6289b5' }}>{course && course.name}</b></label></div>
@@ -658,6 +619,7 @@ const AddEmpAdmin = () => {
                                 &nbsp;Add New Trainee
                             </Button>
                             <div style={{ margin: '10px' }} />
+                            {/* ประเมินผู้อบรม */}
                             <Button className='bin' onClick={() => { setIsPopEditAll(true) }}>
                                 <Icon icon={checkOne} width="30" height="30" />
                                 &nbsp;Evaluate Trainee
@@ -665,10 +627,11 @@ const AddEmpAdmin = () => {
                         </div>
                         <div className="model">
                             {/* แสดงป๊อปอัพ */}
-                            {PopUpNewEmp()}
-                            {PopUpEditAllEmp()}
+                            {ModelNewEmp()}
+                            {ModelEditAllEmp()}
                         </div>
                         <div style={{ color: '#6289b5' }}>
+                            {/* แสดงจำนวนผู้อบรมทั้งหมด */}
                             all candidates : {candidates != null ? candidates.length : null}
                         </div>
                         <Table striped bordered hover responsive size='sm'>
@@ -683,7 +646,6 @@ const AddEmpAdmin = () => {
                                     <th rowSpan="2">
                                         <Icon icon={deleteIcon} color="#495867" width="25" height="25" onClick={showConfirmButton2} />
                                     </th>
-
                                 </tr>
                                 <tr>
                                     <th >ตนเอง</th>
@@ -691,6 +653,7 @@ const AddEmpAdmin = () => {
                                 </tr>
                             </thead>
                             <tbody>
+                                {/* ใส่ข้อมูลในตารางแสดงผู้อบรมที่บันทึกแล้ว */}
                                 {candidates && candidates.map((item, index) => {
                                     return (
                                         <tr key={index}>
