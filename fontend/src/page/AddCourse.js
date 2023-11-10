@@ -535,7 +535,7 @@ const AddCourse = () => {
                         {/* ค้นหาหลักสูตร */}
                         <ReactSearchAutocomplete
                             items={courses}
-                            fuseOptions={{ keys: ["id"] }}
+                            fuseOptions={{ keys: ["id", 'name'] }}
                             onSelect={handleOnSelect}
                             onClear={() => {
                                 setIsFind(true)
@@ -543,7 +543,7 @@ const AddCourse = () => {
                             }}
                             autoFocus
                             placeholder="Plases Fill Course No"
-                            resultStringKeyName="id"
+                            resultStringKeyName="name"
                             styling={
                                 {
                                     backgroundColor: "#D8DBE2",
