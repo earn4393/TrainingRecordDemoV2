@@ -29,7 +29,7 @@ const AddEmpAdmin = () => {
     const [empID, setEmpID] = useState('') // รหัสพนักงาน
     const [name, setName] = useState('') // ชื่อพนักงาน
     const [select1, setSelect1] = useState('มาก') // สถานะความเข้าใจของผู้อบรม
-    const [select2, setSelect2] = useState('A') // สถานะความเข้าใจของผู้สอน
+    const [select2, setSelect2] = useState('') // สถานะความเข้าใจของผู้สอน
     const [remark, setRemark] = useState('') // หมายเหตุ
     const [disabled, setDisabled] = useState(false) // สถานะให้กรอกรหัสพนักงานได้หรือไม่
     const [validated, setValidated] = useState(false); // สถานะการตรวจสอบว่าผู้อบรมกรอกข้อมูลในโมเดลครบไหม
@@ -50,7 +50,6 @@ const AddEmpAdmin = () => {
     }
     // แสดงชื่อตามรหัสพนักงาน
     const showName = async (emp_id) => {
-        setName('')
         setEmpID(emp_id)
         if (emp_id.length === 6) {
             const resEmp = await axios.post(URL_EMP, { id: emp_id })
@@ -76,6 +75,29 @@ const AddEmpAdmin = () => {
         setInValid(null)
     }
 
+    // alert when input save employee
+    const Alert = (icon, title) => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top",
+            grow: 'row',
+            showConfirmButton: false,
+            timer: 1500,
+        });
+
+        return (
+            Toast.fire({
+                icon: icon,
+                title: title,
+            }).then(() => {
+                clearData()
+                setTimeout(() => {
+                    userRef.current && userRef.current.focus()
+                }, 300)
+            })
+        )
+    }
+
     // เพิ่มรายชื่อผู้เข้าอบรม
     const addNewEmp = async () => {
         const data = {
@@ -85,48 +107,21 @@ const AddEmpAdmin = () => {
             trainer: select2,
             remark: remark
         }
-        let index = candidates != null ? candidates.findIndex((item) => item.id === empID) : -1
+        const index = candidates != null ? candidates.findIndex((item) => item.id === empID) : -1
 
         if (index === -1) {
             const resAddNewEmp = await axios.post(URL_ADD_EMP, data)
             if (resAddNewEmp.data.code === 200) {
-                Swal.fire({
-                    icon: 'success',
-                    title: "บันทึกการเข้าฝึกอบรมสำเร็จ",
-                    showConfirmButton: false,
-                    timer: 1000
-                }).then(() => {
-                    setTimeout(() => {
-                        userRef.current && userRef.current.focus()
-                    }, 300)
-                })
+                Alert('success', 'บันทึกการเข้าฝึกอบรมสำเร็จ')
                 listCandidate(course.id)
 
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: "ไม่สามารถบันทึกการเข้าฝึกอบรมได้",
-                    showConfirmButton: false,
-                    timer: 1000
-                }).then(() => {
-                    setTimeout(() => {
-                        userRef.current && userRef.current.focus()
-                    }, 300)
-                })
+                Alert('error', 'ไม่สามารถบันทึกการเข้าฝึกอบรมได้')
             }
         } else {
-            Swal.fire({
-                icon: 'warning',
-                title: "ท่านบันทึกการอบรมเรียบร้อยแล้ว",
-                showConfirmButton: false,
-                timer: 1000
-            }).then(() => {
-                setTimeout(() => {
-                    userRef.current && userRef.current.focus()
-                }, 300)
-            })
+            Alert('warning', 'ท่านบันทึกการอบรมเรียบร้อยแล้ว')
         }
-        clearData()
+
     }
     // แก้ไขรายชื่อผู้เข้าอบรม
     const editAllEmp = async () => {
@@ -137,50 +132,21 @@ const AddEmpAdmin = () => {
             remark: remark
         }
 
-        let index = candidates != null ? candidates.findIndex((item) => item.id === empID) : -1
+        const index = candidates != null ? candidates.findIndex((item) => item.id === empID) : -1
 
         if (index !== -1) {
             const resDelCD = await axios.post(URL_UPATE_CAIDATE, data)
             if (resDelCD.data !== null) {
                 if (resDelCD.data.code === 200) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: "ประเมินการเข้าฝึกอบรมโดยผู้สอนเรียบร้อยแล้ว",
-                        showConfirmButton: false,
-                        timer: 1000
-                    }).then(() => {
-                        setTimeout(() => {
-                            userRef.current && userRef.current.focus()
-                        }, 300)
-                    })
+                    Alert('success', 'ประเมินการเข้าฝึกอบรมโดยผู้สอนเรียบร้อยแล้ว')
                     listCandidate(course.id)
-
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: "ไม่สามารถประเมินการเข้าฝึกอบรมโดยผู้สอนได้",
-                        showConfirmButton: false,
-                        timer: 1000
-                    }).then(() => {
-                        setTimeout(() => {
-                            userRef.current && userRef.current.focus()
-                        }, 300)
-                    })
+                    Alert('error', 'ประเมินกาไม่สามารถประเมินการเข้าฝึกอบรมโดยผู้สอนได้รเข้าฝึกอบรมโดยผู้สอนเรียบร้อยแล้ว')
                 }
             }
         } else {
-            Swal.fire({
-                icon: 'warning',
-                title: "พนักงานยังไม่ได้ลงทะเบียน",
-                showConfirmButton: false,
-                timer: 1000
-            }).then(() => {
-                setTimeout(() => {
-                    userRef.current && userRef.current.focus()
-                }, 300)
-            })
+            Alert('warning', 'พนักงานยังไม่ได้ลงทะเบียน')
         }
-        clearData()
     }
     // ลบรายชื่อผู้เข้าอบรม
     const delCadidate = async (emp_id) => {
@@ -265,7 +231,7 @@ const AddEmpAdmin = () => {
                 scrollable={true}
                 centered={true}
             >
-                <Modal.Header>
+                <Modal.Header >
                     <Modal.Title>Add New Trainee</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -282,6 +248,7 @@ const AddEmpAdmin = () => {
                                     minLength="6"
                                     maxLength="6"
                                     ref={userRef}
+                                    autoFocus
                                     required
                                     disabled={disabled}
                                     isInvalid={invalid}
@@ -342,7 +309,6 @@ const AddEmpAdmin = () => {
                                     label="A"
                                     name="group2"
                                     type="radio"
-                                    defaultChecked='true'
                                     onClick={() => {
                                         setSelect2('A')
                                     }}
@@ -444,6 +410,7 @@ const AddEmpAdmin = () => {
                                     minLength="6"
                                     maxLength="6"
                                     ref={userRef}
+                                    autoFocus
                                     required
                                     disabled={disabled}
                                     isInvalid={invalid}
@@ -556,7 +523,7 @@ const AddEmpAdmin = () => {
         const form = event.currentTarget;
         event.preventDefault();
         event.stopPropagation();
-        if (form.checkValidity() === true & name !== '') {
+        if ((form.checkValidity() === true) & (name !== '')) {
             addNewEmp()
         }
         setValidated(true);
@@ -576,10 +543,6 @@ const AddEmpAdmin = () => {
     useEffect(() => {
         listCouses()
     }, [])
-    // ให้เมาส์โฟกัสที่ช่องกรอกรหัสพนักงาน
-    useEffect(() => {
-        userRef.current && userRef.current.focus()
-    }, [isPopNew, isPopEditAll])
 
 
     return (
@@ -594,7 +557,7 @@ const AddEmpAdmin = () => {
                         onSelect={handleOnSelect}
                         autoFocus
                         placeholder="Plases Fill Course No"
-                        resultStringKeyName="name"
+                        resultStringKeyName="id"
                         styling={
                             {
                                 backgroundColor: "#D8DBE2",

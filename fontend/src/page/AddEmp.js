@@ -12,6 +12,10 @@ const URL_CANDIDATES = '/get-candidate' // api สำหรับเรียก
 const URL_EMP = '/get-employee' // api เรียกดูชื่อพนักงาน
 const URL_ADD_EMP = '/add-employee' // api เพิ่มผู้อบรมลงหลักสูตร
 
+
+
+
+
 // บันทึกประวัติการเข้าอบรม ฉบับผู้ใช้ทั่วไป
 const AddEmp = () => {
     const userRef = useRef()
@@ -31,8 +35,7 @@ const AddEmp = () => {
     const listCouses = async () => {
         const res = await axios.post(URL_COUSES)
         if (res.data.data !== null) {
-            const lst = res.data.data
-            setCouses(lst)
+            setCouses(res.data.data)
         }
     }
     // โหลดข้อมูลผู้ที่อบรมในหลักสูตรที่เลือกไว้
@@ -46,7 +49,6 @@ const AddEmp = () => {
         const res = await axios.post(URL_EMP, { id: emp_id })
         if (emp_id.length === 6) {
             if (res.data.data !== null) {
-                setEmpID(emp_id)
                 setName(`${res.data.data.th_name}/ ${res.data.data.eng_name}`)
                 setDisabled(true)
                 setInValid(false)
@@ -66,6 +68,29 @@ const AddEmp = () => {
         setDisabled(false)
     }
 
+    // alert when input save employee
+    const Alert = (icon, title) => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top",
+            grow: 'row',
+            showConfirmButton: false,
+            timer: 1500,
+        });
+
+        return (
+            Toast.fire({
+                icon: icon,
+                title: title,
+            }).then(() => {
+                clearData()
+                setTimeout(() => {
+                    userRef.current && userRef.current.focus()
+                }, 300)
+            })
+        )
+    }
+
     // เพิ่มรายชื่อผู้เข้าอบรม
     const addNewEmp = async () => {
         const data = {
@@ -75,49 +100,24 @@ const AddEmp = () => {
             trainer: '',
             remark: ''
         }
-        let index = candidates !== null ? candidates.findIndex((item) => item.id === empID) : -1
 
+        const index = candidates != null ? candidates.findIndex((item) => item.id === empID) : -1
 
         if (index === -1) {
             const resAddNewEmp = await axios.post(URL_ADD_EMP, data)
             if (resAddNewEmp.data.code === 200) {
-                Swal.fire({
-                    icon: 'success',
-                    title: "บันทึกการเข้าฝึกอบรมสำเร็จ",
-                    showConfirmButton: false,
-                    timer: 1000
-                }).then(() => {
-                    setTimeout(() => {
-                        userRef.current && userRef.current.focus()
-                    }, 300)
-                })
+                Alert('success', 'บันทึกการเข้าฝึกอบรมสำเร็จ')
                 listCandidate(course.id)
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: "ไม่สามารถบันทึกการเข้าฝึกอบรมได้",
-                    showConfirmButton: true,
-                }).then(() => {
-                    setTimeout(() => {
-                        userRef.current && userRef.current.focus()
-                    }, 300)
-                })
+                Alert('error', 'ไม่สามารถบันทึกการเข้าฝึกอบรมได้')
             }
         } else {
-            Swal.fire({
-                icon: 'warning',
-                title: "ท่านบันทึกการอบรมเรียบร้อยแล้ว",
-                showConfirmButton: true,
-            }).then(() => {
-                setTimeout(() => {
-                    userRef.current && userRef.current.focus()
-                }, 300)
-            })
+            Alert('warning', 'ท่านบันทึกการอบรมเรียบร้อยแล้ว')
         }
-        clearData()
     }
+
     // ป๊อปอัพสำหรับบันทึกประวัติผู้เข้าฝึกอบรม
-    const modelEmp = () => {
+    const ModelEmp = () => {
         return (
             <Modal
                 show={isPop}
@@ -126,6 +126,7 @@ const AddEmp = () => {
                 fullscreen='sm-down'
                 scrollable={true}
                 centered={true}
+                onExited={clearData}
             >
                 <Modal.Header>
                     <Modal.Title>Add New Trainee</Modal.Title>
@@ -144,6 +145,7 @@ const AddEmp = () => {
                                     minLength="6"
                                     maxLength="6"
                                     ref={userRef}
+                                    autoFocus
                                     required
                                     disabled={disabled}
                                     isInvalid={invalid}
@@ -202,7 +204,6 @@ const AddEmp = () => {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => {
                         setIsPop(false)
-                        clearData()
                     }}>
                         Close
                     </Button>
@@ -222,21 +223,16 @@ const AddEmp = () => {
         const form = event.currentTarget;
         event.preventDefault();
         event.stopPropagation();
-        if (form.checkValidity() === true & name !== '') {
+        if ((form.checkValidity() === true) && (name !== '')) {
             addNewEmp()
         }
         setValidated(true);
     };
 
-    // ปิดเมนูบาร์เมื่อเข้ายังหน้านี้และโหลดข้อมูลหลักสูตร
+    // โหลดข้อมูลหลักสูตร
     useEffect(() => {
         listCouses()
     }, [])
-
-    // ให้ curser ชี้ที่ช่องกรอกรหัสพนักงานเมื่อมีการเพิ่มผู้อบรม
-    useEffect(() => {
-        userRef.current && userRef.current.focus()
-    }, [isPop])
 
     return (
         <div >
@@ -250,7 +246,7 @@ const AddEmp = () => {
                         onSelect={handleOnSelect}
                         autoFocus
                         placeholder="Plases Fill Course No"
-                        resultStringKeyName="name"
+                        resultStringKeyName="id"
                         styling={
                             {
                                 backgroundColor: "#D8DBE2",
@@ -276,7 +272,7 @@ const AddEmp = () => {
                             </Button>
                         </div>
                         <div className="model">
-                            {modelEmp()}
+                            {ModelEmp()}
                         </div>
                         <div style={{ color: '#6289b5' }}>
                             {/* จำนวนผู้บันทึกประวัติ */}

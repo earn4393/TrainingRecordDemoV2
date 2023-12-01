@@ -1,18 +1,15 @@
-import React from 'react'
+import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
 import { useAuth } from '../context/AuthProvider'
-import { Nav, Navbar, Dropdown, Container } from 'react-bootstrap';
 import { Outlet, NavLink } from 'react-router-dom'
-import LOGO from '../image/logo1.png'
+import LOGO from '../image/logo1.webp'
 import '../styles/Styles.css'
-
-
 
 const MenuBer = () => {
   const auth = useAuth()
   return (
     <div>
-      <Navbar expand="lg">
-        <Container >
+      <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
+        <Container>
           <Navbar.Brand as={NavLink} to="/" >
             <img
               src={LOGO}
@@ -23,36 +20,25 @@ const MenuBer = () => {
             />{' '}
             Training Record
           </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" label='123' />
-          <Navbar.Collapse id="basic-navbar-nav" className="justify-content-center">
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+          <Navbar.Collapse id="responsive-navbar-nav" className="justify-content-center">
             <Nav className="me-auto">
               <Nav.Link as={NavLink} to="/"> Home</Nav.Link>
               <Nav.Link as={NavLink} to="/employee"> Profile Employees</Nav.Link>
               <Nav.Link as={NavLink} to="/add-course">Register Courses</Nav.Link>
               <Nav.Link as={NavLink} to="/add-emp-admin">Register Employees </Nav.Link >
               {auth.auth ?
-                <Dropdown>
-                  <Dropdown.Toggle variant="Secondary" id="dropdown-basic">
-                    ADMIN ASI シ
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => auth.logout()}>Logout</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown> :
+                <NavDropdown title=" ADMIN ASI シ" id="collasible-nav-dropdown">
+                  <NavDropdown.Item onClick={() => auth.logout()}>Logout</NavDropdown.Item>
+                </NavDropdown> :
                 <Nav.Link as={NavLink} to="/login" >Login</Nav.Link>
               }
             </Nav>
-            {/* <Nav className="me-auto">
-              <Nav.Link as={NavLink} to="/"> Home</Nav.Link>
-              <Nav.Link as={NavLink} to="/employee"> Profile Employees</Nav.Link>
-            </Nav> */}
           </Navbar.Collapse>
         </Container>
       </Navbar>
       <Outlet />
     </div>
-
-
   );
 }
 

@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { Container, Table, Row, Col, Form, Button } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
 import printIcon from '@iconify/icons-material-symbols/print';
-import { useReactToPrint } from 'react-to-print';
 import axios from '../api/axios';
 import '../styles/ReportCourse.css'
 import '../styles/Styles.css'

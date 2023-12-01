@@ -17,17 +17,17 @@ const URL_ADD_COURSE = '/add-course' // ลิงค์สำหรับสร�
 const URL_DEL_COURSE = '/delete-course' // ลิงค์สำหรับลบหลักสูตร
 const URL_EDIT_COURSE = '/edit-course' // ลิงค์สำหรับแก้ไขหลักสูจร
 const URL_DEL_TST = '/delete-transaction-by-course' // ลิงค์ลบพนักงานอยู่ในคอร์สนี้
-const URL_COUNT_ROW = '/count-courses' // ลิงค์นับจำนวนแถว
 const URL_COURSES_PER_PAGE = '/get-all-courses-per-page' // ลิงค์เรียกคอร์สตามการแบ่งหน้า
 
 // แสดง เพิ่ม แก้ไข และลบหลักสูตร
 const AddCourse = () => {
-    const [validated, setValidated] = useState(false);
+    const [validated, setValidated] = useState(null);
     const [courses, setCouses] = useState([]) // หลักสูตรทั้งหมด
     const [showCourses, setShowCouses] = useState(null) //หลักสูตรในแต่ละหน้า
     const [isPopEdit, setIsPopEdit] = useState(false) //สถานะป๊อปอัพแก้ไขหลักสูตรว่าจะให้แสดงหรือไม่
     const [isPopNew, setIsPopNew] = useState(false) // สถานะป๊อปอัพสร้างหลักสูตรว่าจะให้แสดงหรือไม่
     const [pageCount, setPageCount] = useState(0) // หน้าทั้งหมด
+    const [count, setCount] = useState(0) // จำนวนหลักสูตรทั้งหมด
     const [pageNumber, setPageNumber] = useState(0) // หน้าปัจจุบันที่อยู่
     const [isFind, setIsFind] = useState(true) // สถานะของการแสดง paging 
     const [data, setData] = useState({
@@ -62,14 +62,6 @@ const AddCourse = () => {
         setPageNumber(selected);
         listCourses(selected)
     }
-    // นับจำนวนหน้า
-    const countRow = async () => {
-        const res = await axios.post(URL_COUNT_ROW)
-        if (res.data.count != null) {
-            setPageCount(Math.ceil(res.data.count / 50))
-            listCourses(pageNumber)
-        }
-    }
 
     // โหลดข้อมูลหลักสูตรตามหน้า
     const listCourses = async (num) => {
@@ -84,6 +76,9 @@ const AddCourse = () => {
         const res = await axios.post(URL_COUSES)
         if (res.data.data !== null) {
             setCouses(res.data.data)
+            setCount(res.data.data.length)
+            setPageCount(Math.ceil(res.data.data.length / 50))
+            listCourses(pageNumber)
         }
     }
     // reset parameters
@@ -128,24 +123,37 @@ const AddCourse = () => {
     };
     // สร้างหลักสูตร
     const addCourse = async () => {
-        const res = await axios.post(URL_ADD_COURSE, data)
-        if (res.data.code === 200) {
-            Swal.fire({
-                icon: 'success',
-                title: "บันทึกหลักสูตรเรียบร้อยแล้ว",
-                showConfirmButton: false,
-                timer: 1000
-            })
-            listCourses(pageNumber)
-            clearData()
+        const index = courses != null ? courses.findIndex((item) => item.id === data.id) : -1
+        if (index === -1) {
+            const res = await axios.post(URL_ADD_COURSE, data)
+            if (res.data.code === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: "บันทึกหลักสูตรเรียบร้อยแล้ว",
+                    showConfirmButton: false,
+                    timer: 1000
+                })
+                setCount(count + 1)
+                setPageCount(Math.ceil((count + 1) / 50))
+                listCourses(pageNumber)
+                clearData()
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: "ไม่สามารถบันทึกหลักสูตรได้",
+                    showConfirmButton: false,
+                    timer: 1000
+                })
+            }
         } else {
             Swal.fire({
                 icon: 'error',
-                title: "ไม่สามารถบันทึกหลักสูตรได้",
+                title: "รหัสหลักสูตรซ้ำ",
                 showConfirmButton: false,
                 timer: 1000
             })
         }
+
     }
     // แก้ไขหลักสูตร
     const editCourse = async () => {
@@ -205,7 +213,7 @@ const AddCourse = () => {
     }
 
     // ป๊อปอัพสำหรับแก้ไขหลักสูตร
-    const modelEditCourse = () => {
+    const ModelEditCourse = () => {
         let start = data.start
         let end = data.end
         if (start === '-') {
@@ -222,6 +230,7 @@ const AddCourse = () => {
                 fullscreen='lg-down'
                 scrollable={true}
                 centered={true}
+                onExited={clearData}
             >
                 <Modal.Header>
                     <Modal.Title>Edit Course</Modal.Title>
@@ -362,7 +371,7 @@ const AddCourse = () => {
         )
     }
     // ป๊อปอัพสำหรับสร้างหลักสูตร
-    const modelCreateCourse = () => {
+    const ModelCreateCourse = () => {
         return (
             <Modal
                 show={isPopNew}
@@ -371,6 +380,7 @@ const AddCourse = () => {
                 fullscreen='lg-down'
                 scrollable={true}
                 centered={true}
+                onExited={clearData}
             >
                 <Modal.Header >
                     <Modal.Title>Create New Course</Modal.Title>
@@ -378,7 +388,7 @@ const AddCourse = () => {
                 <Modal.Body className="model-body-course">
                     <Form noValidate validated={validated} onSubmit={handleSubmit}>
                         <Row>
-                            <Form.Group className="mb-3" as={Col} >
+                            <Form.Group className="mb-3" as={Col} controlId="validationFormik01">
                                 <Form.Label >รหัสหลักสูตร*:</Form.Label>
                                 <Form.Control
                                     type="text"
@@ -388,6 +398,7 @@ const AddCourse = () => {
                                     value={data.id}
                                     required
                                 />
+
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col} xs={8}>
                                 <Form.Label>ชื่อหลักสูตร*:</Form.Label>
@@ -508,10 +519,7 @@ const AddCourse = () => {
         setIsFind(false)
     }
 
-    // เริ่มนับจำนวนหลักสูตรทั้งหมด
-    useEffect(() => {
-        countRow()
-    }, [])
+
     // เริ่มเตรียมข้อมูลสำหรับใช้ค้นหา
     useEffect(() => {
         searchCourses()
@@ -539,11 +547,11 @@ const AddCourse = () => {
                             onSelect={handleOnSelect}
                             onClear={() => {
                                 setIsFind(true)
-                                countRow()
+                                listCourses(pageNumber)
                             }}
                             autoFocus
                             placeholder="Plases Fill Course No"
-                            resultStringKeyName="name"
+                            resultStringKeyName="id"
                             styling={
                                 {
                                     backgroundColor: "#D8DBE2",
@@ -554,8 +562,8 @@ const AddCourse = () => {
                 </div>
                 <div >
                     <div className="model">
-                        {modelCreateCourse()}
-                        {modelEditCourse()}
+                        {ModelCreateCourse()}
+                        {ModelEditCourse()}
                     </div>
                     {/* ตารางแสดงหลักสูตร */}
                     <Table striped bordered hover responsive size='sm'>
