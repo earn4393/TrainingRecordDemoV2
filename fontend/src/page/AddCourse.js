@@ -4,6 +4,7 @@ import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import { Container, Table, Button, Modal, Form, Col, Row } from 'react-bootstrap';
 import ReactPaginate from "react-paginate";
 import { Icon } from '@iconify/react';
+import ScrollToTop from '../component/ScrollToTop'
 import addIcon from '@iconify/icons-gridicons/add';
 import editIcon from '@iconify/icons-bxs/edit';
 import deleteIcon from '@iconify/icons-material-symbols/delete';
@@ -527,9 +528,11 @@ const AddCourse = () => {
 
     return (
         <div>
+            <ScrollToTop />
             <div className="wrapp-header">
                 <h1 className="head-title">Register Courses</h1>
             </div>
+            <ScrollToTop smooth='true' />
             <Container>
                 <div className="wrapp-bin-course">
                     <div className='content-bin'>

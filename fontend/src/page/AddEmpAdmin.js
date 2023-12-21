@@ -4,6 +4,7 @@ import axios from "../api/axios";
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import { Container, Table, Modal, Button, Row, Col, Form } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
+import ScrollToTop from '../component/ScrollToTop'
 import addIcon from '@iconify/icons-gridicons/add';
 import deleteIcon from '@iconify/icons-material-symbols/delete';
 import checkOne from '@iconify/icons-icon-park-solid/check-one';
@@ -547,6 +548,7 @@ const AddEmpAdmin = () => {
 
     return (
         <div >
+            <ScrollToTop />
             <div className="wrapp-header">
                 <h1 className="head-title">Register Employees</h1>
                 <div className='wrapp-search'>
@@ -566,6 +568,7 @@ const AddEmpAdmin = () => {
                     />
                 </div>
             </div>
+            <ScrollToTop smooth='true' />
             <Container>
                 {isShow ?
                     // เมื่อเลือกหลักสูตรได้แล้ว จะแสดงข้อมูลและรายชื่อผู้อบรมที่บันทึกประวัติในหลักสูตรที่เลือกไว้แล้ว

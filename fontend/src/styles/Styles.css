@@ -182,6 +182,26 @@ table td {
   background-color: grey;
 }
 
+.top-to-btm {
+  position: relative;
+}
+
+.icon-position {
+  position: fixed;
+  bottom: 40px;
+  right: 6px;
+  z-index: 20;
+}
+
+.icon-style {
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.icon-style:hover {
+  scale: 1.2;
+}
+
 
 @media only screen and (min-height: 700px) {
   .content-logo-home {
@@ -195,5 +215,11 @@ table td {
   .len-id {
     width: 100px;
   }
+
+  .icon-style {
+    width: 60px;
+    height: 60px;
+  }
+
 
 }

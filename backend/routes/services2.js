@@ -1,50 +1,81 @@
 const app = require('express').Router();
 const conn = require('../db/db_train.js');
+const cookieParser = require('cookie-parser')
+const session = require('express-session')
 var sql = require('mssql');
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(cookieParser())
+app.use(session(
+    {
+        secret: 'earn@ASI_teain123',
+        resave: true,
+        saveUninitialized: true,
+        cookie: {
+            secure: false,
+            maxAge: 86400000
+        }
+    }
+))
 
+// user auth 
 app.post('/auth', (req, res) => {
     conn.connect().then(() => {
         var request = new sql.Request(conn)
-        var query = `SELECT Username AS 'user' ,Passwords AS 'pwd' FROM tbl_Accounts`
+        var query = `SELECT Username AS 'user' ,Passwords AS 'pwd' , Permissions AS 'state'  FROM tbl_Accounts
+                        WHERE Username = '${req.body.user}' and Passwords = '${req.body.pwd}'`
         request.query(query, (err, records) => {
-            const data = { data: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data.data = records.recordset[0]
-            } else {
-                console.log(`auth query err: ${err}`)
-            }
-            // console.log(data)
-            res.send(data)
+            if (err) console.log(`auth query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) {
+                if (records.recordset[0].state === 'admin') {
+                    req.session.username = 'admin'
+                    res.send({ state: 'admin' })
+                } else res.send({ state: 'user' })
+            } else res.send({ state: 'user' })
+
         })
     }).catch((err) => {
         console.log(`auth connect error : ${err}`)
     })
 });
 
+// check state user in session
+app.get('/read-session', (req, res) => {
+    if (req.session.username == 'admin') {
+        res.send({ state: 'admin' })
+    } else {
+        res.send({ state: 'user' })
+    }
+});
+
+// delete session state user
+app.get('/logout', (req, res) => {
+    // ลบ session 
+    req.session.destroy((err) => {
+        if (err) {
+            console.log(err);
+            res.send(false)
+        } else res.send(true)
+    });
+});
+
+
+
 app.post('/get-employee', (req, res) => {
     const id = req.body.id
     conn.connect().then(() => {
         var request = new sql.Request(conn)
         var query = `SELECT EMPLOYEE_NO AS id, EMPLOYEE_LOCAL_NAME AS 'th_name', 
-        EMPLOYEE_NAME AS 'eng_name' ,CASE WHEN SEX = 'M' THEN 'ชาย' ELSE 'หญิง' END AS sex,
-        FORMAT(BIRTH_DATE, 'dd/MM/yyyy')as birth,FORMAT(DATE_JOINED, 'dd/MM/yyyy') AS 'join',
-        COALESCE(QUALIFICATION_DESCRIPTION,'-') AS degree ,COALESCE(division_description,'-') AS div,
-		COALESCE(department_description,'-') AS dep,COALESCE(POSITION_DESCRIPTION,'-') AS pos ,
-		YEAR(GETDATE()) - YEAR(tbl_EMPLOYEE.BIRTH_DATE) as 'year' ,
-        COALESCE(CATEGORY_DESCRIPTION,'-') AS cate  FROM tbl_EMPLOYEE WHERE EMPLOYEE_NO = '${id}'`
+                    EMPLOYEE_NAME AS 'eng_name' ,CASE WHEN SEX = 'M' THEN 'ชาย' ELSE 'หญิง' END AS sex,
+                    FORMAT(BIRTH_DATE, 'dd/MM/yyyy')as birth,FORMAT(DATE_JOINED, 'dd/MM/yyyy') AS 'join',
+                    COALESCE(QUALIFICATION_DESCRIPTION,'-') AS degree ,COALESCE(division_description,'-') AS div,
+                    COALESCE(department_description,'-') AS dep,COALESCE(POSITION_DESCRIPTION,'-') AS pos ,
+                    YEAR(GETDATE()) - YEAR(tbl_EMPLOYEE.BIRTH_DATE) as 'year' ,
+                    COALESCE(CATEGORY_DESCRIPTION,'-') AS cate  FROM tbl_EMPLOYEE WHERE EMPLOYEE_NO = '${id}'`
 
         request.query(query, (err, records) => {
             const data = { data: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data.data = records.recordset[0]
-            } else {
-                console.log(`get-employee query err: ${err}`)
-            }
-            // console.log(data)
+            if (err) console.log(`get-employee query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) data.data = records.recordset[0]
             res.send(data)
 
         })
@@ -60,20 +91,16 @@ app.post('/get-all-my-course', (req, res) => {
     conn.connect().then(() => {
         var request = new sql.Request(conn)
         var query = `SELECT  tbl_Transaction.CourseID AS id,COALESCE(CourseName,'-') AS 'name',
-        COALESCE(FORMAT(CourseStart, 'dd/MM/yyyy'),'-') AS 'date',
-		DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'place',
-        COALESCE(TraineeEvaluate,'-') AS 'trainee',COALESCE(TrainerEvaluate,'-') AS 'trainer' 
-		FROM tbl_Transaction FULL JOIN tbl_Course on tbl_Transaction.CourseID = tbl_Course.CourseID 
-		where tbl_Transaction.EMPLOYEE_NO =  '${id}' ORDER BY EntryDate ASC`
+                    COALESCE(FORMAT(CourseStart, 'dd/MM/yyyy'),'-') AS 'date',
+                    DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'place',
+                    COALESCE(TraineeEvaluate,'-') AS 'trainee',COALESCE(TrainerEvaluate,'-') AS 'trainer' 
+                    FROM tbl_Transaction FULL JOIN tbl_Course on tbl_Transaction.CourseID = tbl_Course.CourseID 
+                    where tbl_Transaction.EMPLOYEE_NO =  '${id}' ORDER BY EntryDate ASC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data.data = records.recordset
-            } else {
-                console.log(`get-all-my-course query err: ${err}`)
-            }
-            // console.log(data)
+            if (err) console.log(`get-all-my-course query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) data.data = records.recordset
             res.send(data)
         })
     }).catch((err) => {
@@ -88,18 +115,15 @@ app.post('/get-course', (req, res) => {
 
         var request = new sql.Request(conn)
         var query = `SELECT CourseID AS 'id',COALESCE(CourseName,'-') AS 'name',
-        COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
-        TrainerID AS 'trainer_id' ,COALESCE(TrainerName,'-') AS 'trainer',DurationHour AS 'hr',
-		COALESCE(CourseLoc,'-') AS 'place',COALESCE(FORMAT(CourseStart, 'dd/MM/yyyy'),'-') AS 'start',
-		COALESCE(FORMAT(CourseEnd, 'dd/MM/yyyy'),'-') AS 'end' FROM tbl_Course WHERE CourseID =  '${id}'`
+                    COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
+                    TrainerID AS 'trainer_id' ,COALESCE(TrainerName,'-') AS 'trainer',DurationHour AS 'hr',
+                    COALESCE(CourseLoc,'-') AS 'place',COALESCE(FORMAT(CourseStart, 'dd/MM/yyyy'),'-') AS 'start',
+                    COALESCE(FORMAT(CourseEnd, 'dd/MM/yyyy'),'-') AS 'end' FROM tbl_Course WHERE CourseID =  '${id}'`
 
         request.query(query, (err, records) => {
             const data = { data: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data.data = records.recordset[0]
-            } else {
-                console.log(`get-course query err: ${err}`)
-            }
+            if (err) console.log(`get-course query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) data.data = records.recordset[0]
             res.send(data)
         })
     }).catch((err) => {
@@ -114,27 +138,23 @@ app.post('/get-candidate', (req, res) => {
 
         var request = new sql.Request(conn)
         var query = `SELECT tbl_Transaction.EMPLOYEE_NO AS id,COALESCE(
-            CASE 
-            WHEN EMPLOYEE_TITLE = 'MR' THEN 'นาย'  
-            WHEN EMPLOYEE_TITLE = 'MS' THEN 'น.ส.'  
-            WHEN EMPLOYEE_TITLE = 'MRS' THEN 'นาง'  
-            END,'-') AS title,
-            COALESCE(EMPLOYEE_LOCAL_NAME,'-') AS 'th_name',COALESCE(EMPLOYEE_NAME,'-') AS 'eng_name',
-            COALESCE(NATIONAL_ID2,'-') AS identify,COALESCE(TraineeEvaluate,'-') AS trainee,
-            COALESCE(TrainerEvaluate,'-') AS trainer,COALESCE(FORMAT(EntryDate, 'dd/MM/yyyy'),'-') as date,
-            COALESCE(Remark,'') AS remark , department_description AS dep , POSITION_DESCRIPTION AS pos
-            FROM tbl_Transaction FULL JOIN tbl_EMPLOYEE 
-            ON tbl_Transaction.EMPLOYEE_NO  = tbl_EMPLOYEE.EMPLOYEE_NO
-            where CourseID = '${id}' ORDER BY EntryDate DESC`
+                    CASE 
+                    WHEN EMPLOYEE_TITLE = 'MR' THEN 'นาย'  
+                    WHEN EMPLOYEE_TITLE = 'MS' THEN 'น.ส.'  
+                    WHEN EMPLOYEE_TITLE = 'MRS' THEN 'นาง'  
+                    END,'-') AS title,
+                    COALESCE(EMPLOYEE_LOCAL_NAME,'-') AS 'th_name',COALESCE(EMPLOYEE_NAME,'-') AS 'eng_name',
+                    COALESCE(NATIONAL_ID2,'-') AS identify,COALESCE(TraineeEvaluate,'-') AS trainee,
+                    COALESCE(TrainerEvaluate,'-') AS trainer,COALESCE(FORMAT(EntryDate, 'dd/MM/yyyy'),'-') as date,
+                    COALESCE(Remark,'') AS remark , department_description AS dep , POSITION_DESCRIPTION AS pos
+                    FROM tbl_Transaction FULL JOIN tbl_EMPLOYEE 
+                    ON tbl_Transaction.EMPLOYEE_NO  = tbl_EMPLOYEE.EMPLOYEE_NO
+                    where CourseID = '${id}' ORDER BY EntryDate DESC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data.data = records.recordset
-            } else {
-                console.log(`get-candidate query err: ${err}`)
-            }
-            // console.log(data)
+            if (err) console.log(`get-candidate query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) data.data = records.recordset
             res.send(data)
         })
     }).catch((err) => {
@@ -148,21 +168,17 @@ app.post('/get-all-courses', (req, res) => {
 
         var request = new sql.Request(conn)
         var query = `SELECT CourseID AS 'id',CourseName AS 'name',
-        COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
-        COALESCE(TrainerID,'-') AS 'trainer_id',COALESCE(TrainerName,'-') AS 'trainer',
-        DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'site',
-        COALESCE(FORMAT(CourseStart, 'yyyy-MM-dd'),'-') AS 'start', 
-        COALESCE(FORMAT(CourseEnd, 'yyyy-MM-dd'),'-') AS 'end' ,
-        COALESCE(TrainerCom,'-') AS 'div' FROM tbl_Course  ORDER BY CourseStart DESC`
+                    COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
+                    COALESCE(TrainerID,'-') AS 'trainer_id',COALESCE(TrainerName,'-') AS 'trainer',
+                    DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'site',
+                    COALESCE(FORMAT(CourseStart, 'yyyy-MM-dd'),'-') AS 'start', 
+                    COALESCE(FORMAT(CourseEnd, 'yyyy-MM-dd'),'-') AS 'end' ,
+                    COALESCE(TrainerCom,'-') AS 'div' FROM tbl_Course  ORDER BY CourseStart DESC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data.data = records.recordset
-            } else {
-                console.log(`get-all-courses query err: ${err}`)
-            }
-            // console.log(data)
+            if (err) console.log(`get-all-courses query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) data.data = records.recordset
             res.send(data)
         })
     }).catch((err) => {
@@ -176,16 +192,12 @@ app.post('/get-all-courses-by-search', (req, res) => {
 
         var request = new sql.Request(conn)
         var query = `SELECT CourseID AS 'id',CourseName AS 'name'
-        FROM tbl_Course  ORDER BY CourseStart DESC`
+                    FROM tbl_Course  ORDER BY CourseStart DESC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data.data = records.recordset
-            } else {
-                console.log(`get-all-courses-by-search query err: ${err}`)
-            }
-            // console.log(data)
+            if (err) console.log(`get-all-courses-by-search query err: ${err}`)
+            if (records.rowsAffected[0] > 0) data.data = records.recordset
             res.send(data)
         })
     }).catch((err) => {
@@ -217,12 +229,10 @@ app.post('/add-course', (req, res) => {
         console.log(query)
 
         request.query(query, (err, records) => {
-            if (err == null) {
-                res.send({ code: 200 })
-            } else {
+            if (err) {
                 console.log(`add-course query err: ${err}`)
                 res.send({ code: 999 })
-            }
+            } else res.send({ code: 200 })
         })
 
     }).catch((err) => {
@@ -238,12 +248,11 @@ app.post('/delete-course', (req, res) => {
         var query = `DELETE FROM tbl_Course WHERE CourseID = '${id}'`
 
         request.query(query, (err, records) => {
-            if (err == null) {
-                res.send({ code: 200 })
-            } else {
+            if (err) {
                 console.log(`delete-course query err: ${err}`)
                 res.send({ code: 999 })
-            }
+            } else res.send({ code: 200 })
+
         })
     }).catch((err) => {
         console.log(`delete-course connect error : ${err}`)
@@ -257,12 +266,11 @@ app.post('/delete-transaction-by-course', (req, res) => {
         var query = `DELETE FROM tbl_Transaction WHERE CourseID = '${id}'`
 
         request.query(query, (err, records) => {
-            if (err == null) {
-                res.send({ code: 200 })
-            } else {
+            if (err) {
                 console.log(`delete-transaction-by-course query err: ${err}`)
                 res.send({ code: 999 })
-            }
+            } else res.send({ code: 200 })
+
         })
     }).catch((err) => {
         console.log(`delete-transaction-by-course connect error : ${err}`)
@@ -287,12 +295,11 @@ app.post('/edit-course', (req, res) => {
         query += (course.div == '-' ? 'NULL' : `'${course.div}'`) + ` WHERE CourseID = '${course.id}'`
 
         request.query(query, (err, records) => {
-            if (err == null) {
-                res.send({ code: 200 })
-            } else {
+            if (err) {
                 console.log(`edit-course query err: ${err}`)
                 res.send({ code: 999 })
-            }
+            } else res.send({ code: 200 })
+
         })
     }).catch((err) => {
         console.log(`edit-course connect error : ${err}`)
@@ -310,12 +317,10 @@ app.post('/add-employee', (req, res) => {
             TrainerEvaluate,Remark) 
             VALUES('${emp.course_id}','${emp.emp_id}','${emp.trainee}',${trainer},${remark})`
         request.query(query, (err, records) => {
-            if (err == null) {
-                res.send({ code: 200 })
-            } else {
+            if (err) {
                 console.log(`add-employee query err: ${err}`)
                 res.send({ code: 999 })
-            }
+            } else res.send({ code: 200 })
         })
     }).catch((err) => {
         console.log(`add-employee connect error : ${err}`)
@@ -331,12 +336,10 @@ app.post('/delete-cadidate', (req, res) => {
         var query = `DELETE FROM tbl_Transaction WHERE EMPLOYEE_NO = '${emp_id}' and CourseID = '${course_id}'`
 
         request.query(query, (err, records) => {
-            if (err == null) {
-                res.send({ code: 200 })
-            } else {
+            if (err) {
                 console.log(`delete-cadidate query err: ${err}`)
                 res.send({ code: 999 })
-            }
+            } else res.send({ code: 200 })
         })
     }).catch((err) => {
         console.log(`delete-cadidate connect error : ${err}`)
@@ -348,14 +351,13 @@ app.post('/update-cadidate', (req, res) => {
     const emp = req.body
     conn.connect().then((err, records) => {
         var request = new sql.Request(conn)
-        var query = `UPDATE tbl_Transaction SET TrainerEvaluate = '${emp.trainer}', Remark = '${emp.remark}' WHERE EMPLOYEE_NO = '${emp.emp_id}' and CourseID = '${emp.course_id}'`
+        var query = `UPDATE tbl_Transaction SET TrainerEvaluate = '${emp.trainer}', Remark = '${emp.remark}' 
+                    WHERE EMPLOYEE_NO = '${emp.emp_id}' and CourseID = '${emp.course_id}'`
         request.query(query, (err, records) => {
-            if (err == null) {
-                res.send({ code: 200 })
-            } else {
+            if (err) {
                 console.log(`update-cadidate query err: ${err}`)
                 res.send({ code: 999 })
-            }
+            } else res.send({ code: 200 })
         })
     }).catch((err) => {
         console.log(`update-cadidate connect error : ${err}`)
@@ -370,12 +372,8 @@ app.post('/count-courses', (req, res) => {
         var query = `SELECT COUNT(CourseID) AS count FROM tbl_Course`
         request.query(query, (err, records) => {
             let data = { count: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data = records.recordset[0]
-            } else {
-                console.log(`count-courses query err: ${err}`)
-            }
-            // console.log(data)
+            if (err) console.log(`count-courses query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) data = records.recordset[0]
             res.send(data)
 
         })
@@ -389,23 +387,19 @@ app.post('/get-all-courses-per-page', (req, res) => {
     conn.connect().then((err, records) => {
         var request = new sql.Request(conn)
         var query = `SELECT CourseID AS 'id',CourseName AS 'name',
-        COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
-        COALESCE(TrainerID,'-') AS 'trainer_id',COALESCE(TrainerName,'-') AS 'trainer',
-        DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'site',
-        COALESCE(FORMAT(CourseStart, 'yyyy-MM-dd'),'-') AS 'start', 
-        COALESCE(FORMAT(CourseEnd, 'yyyy-MM-dd'),'-') AS 'end' ,
-        COALESCE(TrainerCom,'-') AS 'div' FROM tbl_Course  ORDER BY CourseStart DESC 
-        OFFSET ${start} ROWS FETCH NEXT 50 ROWS ONLY`
+                    COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
+                    COALESCE(TrainerID,'-') AS 'trainer_id',COALESCE(TrainerName,'-') AS 'trainer',
+                    DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'site',
+                    COALESCE(FORMAT(CourseStart, 'yyyy-MM-dd'),'-') AS 'start', 
+                    COALESCE(FORMAT(CourseEnd, 'yyyy-MM-dd'),'-') AS 'end' ,
+                    COALESCE(TrainerCom,'-') AS 'div' FROM tbl_Course  ORDER BY CourseStart DESC 
+                    OFFSET ${start} ROWS FETCH NEXT 50 ROWS ONLY`
 
 
         request.query(query, (err, records) => {
             const data = { data: null }
-            if (err == null && records.rowsAffected[0] > 0) {
-                data.data = records.recordset
-            } else {
-                console.log(`get-all-courses query err: ${err}`)
-            }
-            // console.log(data)
+            if (err) console.log(`get-all-courses query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) data.data = records.recordset
             res.send(data)
         })
     }).catch((err) => {
@@ -422,12 +416,8 @@ app.post('/get-form', (req, res) => {
 
         request.query(query, (err, records) => {
             let div = null
-            if (err == null && records.rowsAffected[0] > 0) {
-                div = records.recordset[0].div
-            } else {
-                console.log(`get-form query err: ${err}`)
-            }
-            // console.log(data)
+            if (err) console.log(`get-form query err: ${err}`)
+            else if (ecords.rowsAffected[0] > 0) div = records.recordset[0].div
             res.send(div)
 
         })

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import Home from './page/Home'
 import Employee from './page/Employee';
 import ReportEmp from './page/ReportEmp';
@@ -10,8 +10,6 @@ import AddEmp from './page/AddEmp';
 import AddEmpAdmin from './page/AddEmpAdmin';
 import Login from './page/Login';
 import ReqRequireAuth from './context/RequireAuth'
-// import Manual from './page/Manual'
-import { AuthProvider } from './context/AuthProvider';
 import MenuBer from './component/MenuBer';
 
 
@@ -19,7 +17,7 @@ import MenuBer from './component/MenuBer';
 
 function App() {
   return (
-    <AuthProvider>
+    <BrowserRouter>
       <Routes >
         {/* Lock Page */}
         <Route path='/' element={<MenuBer />}>
@@ -37,7 +35,7 @@ function App() {
         <Route path='detail-course/:id' element={<DetailCourse />} />
         <Route path='report-course/:id' element={<ReportCourse />} />
       </Routes>
-    </AuthProvider>
+    </BrowserRouter>
   );
 }
 

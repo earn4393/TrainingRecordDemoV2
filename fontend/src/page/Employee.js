@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'
 import { Container, Table, FormControl, Button } from 'react-bootstrap';
+import ScrollToTop from '../component/ScrollToTop'
 import { Icon } from '@iconify/react';
 import printIcon from '@iconify/icons-material-symbols/print';
 import axios from '../api/axios';
@@ -52,6 +53,7 @@ const Employee = () => {
                         />
                     </div>
                 </div>
+                <ScrollToTop smooth='true' />
                 {emp ?
                     // ถ้าเจอข้อมูลพนักงานให้แสดง
                     <Container>

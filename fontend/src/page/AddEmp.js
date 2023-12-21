@@ -3,6 +3,7 @@ import Swal from 'sweetalert2'
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import { Container, Table, Modal, Button, Row, Col, Form } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
+import ScrollToTop from '../component/ScrollToTop'
 import addIcon from '@iconify/icons-gridicons/add';
 import axios from "../api/axios";
 import '../styles/Styles.css'
@@ -236,6 +237,7 @@ const AddEmp = () => {
 
     return (
         <div >
+            <ScrollToTop />
             <div className="wrapp-header">
                 <h1 className="head-title">Register Employees</h1>
                 <div className='wrapp-search'>

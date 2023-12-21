@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import { Container, Table, Button } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
+import ScrollToTop from '../component/ScrollToTop'
 import fileEarmarkExcelFill from '@iconify/icons-bi/file-earmark-excel-fill';
 import printIcon from '@iconify/icons-material-symbols/print';
 import * as XLSX from 'xlsx'
@@ -34,12 +35,15 @@ const DetailCourse = () => {
     const exportExcel = () => {
         const excel = candidates.map((item, index) => {
             const name = item.th_name.split(" ")
+            const fname = name[0]
+            name.shift()
+            const lname = name.length > 2 ? name.join(" ") : name[1]
             return {
                 "ลำดับ": index + 1,
                 "รหัสประจำตัวประชาชน": item.identify,
                 "คำนำหน้า": item.title,
-                "ชื่อ": name[0],
-                "นามสกุล": name[2]
+                "ชื่อ": fname,
+                "นามสกุล": lname,
             }
         })
 
@@ -58,6 +62,7 @@ const DetailCourse = () => {
 
     return (
         <div>
+            <ScrollToTop />
             <div className='wrapp-header'>
                 <h1 className='head-title'>Report Course</h1>
             </div>
