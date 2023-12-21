@@ -19,12 +19,10 @@ const Login = () => {
         e.preventDefault()
         axios.post('/auth', { user: user, pwd: pwd })
             .then(res => {
-                console.log(12345)
                 if (res.data.state === 'admin') {
                     navigate(redirectPath, { replace: true })
                     window.location.reload()
                 } else {
-                    console.log(66666)
                     Swal.fire({
                         icon: 'error',
                         title: "User or Password wrong",
