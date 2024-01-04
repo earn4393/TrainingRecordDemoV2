@@ -1,3 +1,4 @@
+// เชื่อมต่อฐานข้อมูล
 var sql = require('mssql');
 
 var connection = new sql.ConnectionPool({

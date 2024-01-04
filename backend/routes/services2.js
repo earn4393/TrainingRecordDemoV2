@@ -7,7 +7,7 @@ var sql = require('mssql');
 app.use(cookieParser())
 app.use(session(
     {
-        secret: 'earn@ASI_teain123',
+        secret: 'key',
         resave: true,
         saveUninitialized: true,
         cookie: {
@@ -59,7 +59,7 @@ app.get('/logout', (req, res) => {
 });
 
 
-
+// ข้อมูลพนักงาน
 app.post('/get-employee', (req, res) => {
     const id = req.body.id
     conn.connect().then(() => {
@@ -85,7 +85,7 @@ app.post('/get-employee', (req, res) => {
 
 });
 
-
+// ข้อมูลหลักสูตรทั้งหมด
 app.post('/get-all-my-course', (req, res) => {
     const id = req.body.id
     conn.connect().then(() => {
@@ -108,7 +108,7 @@ app.post('/get-all-my-course', (req, res) => {
     })
 });
 
-
+// ข้อมูลหลักสููตรตาม id
 app.post('/get-course', (req, res) => {
     const id = req.body.id
     conn.connect().then((err, records) => {
@@ -131,7 +131,7 @@ app.post('/get-course', (req, res) => {
     })
 })
 
-
+// ผู้ที่เข้าอบรมหลักสูตรตาม id
 app.post('/get-candidate', (req, res) => {
     const id = req.body.id
     conn.connect().then((err, records) => {
@@ -162,7 +162,7 @@ app.post('/get-candidate', (req, res) => {
     })
 })
 
-
+// ข้อมูลหลักสูตรทั้งหมด
 app.post('/get-all-courses', (req, res) => {
     conn.connect().then((err, records) => {
 
@@ -186,7 +186,7 @@ app.post('/get-all-courses', (req, res) => {
     })
 })
 
-
+// รหัสหลักสูตรสำหรับใช้ค้นหาหลักสูตร
 app.post('/get-all-courses-by-search', (req, res) => {
     conn.connect().then((err, records) => {
 
@@ -205,7 +205,7 @@ app.post('/get-all-courses-by-search', (req, res) => {
     })
 })
 
-
+// เพิ่มหลักสูตร
 app.post('/add-course', (req, res) => {
     const course = req.body
     conn.connect().then((err, records) => {
@@ -240,7 +240,7 @@ app.post('/add-course', (req, res) => {
     })
 })
 
-
+// ลบหลักสูตร
 app.post('/delete-course', (req, res) => {
     const id = req.body.id
     conn.connect().then((err, records) => {
@@ -259,6 +259,7 @@ app.post('/delete-course', (req, res) => {
     })
 })
 
+// ลบทั้งหลักสูตร
 app.post('/delete-transaction-by-course', (req, res) => {
     const id = req.body.id
     conn.connect().then((err, records) => {
@@ -277,6 +278,7 @@ app.post('/delete-transaction-by-course', (req, res) => {
     })
 })
 
+// แก้ไขหลักสูตร
 app.post('/edit-course', (req, res) => {
     const course = req.body
     conn.connect().then((err, records) => {
@@ -306,7 +308,7 @@ app.post('/edit-course', (req, res) => {
     })
 })
 
-
+// บันทึกผู้อบรม
 app.post('/add-employee', (req, res) => {
     const emp = req.body
     conn.connect().then((err, records) => {
@@ -327,7 +329,7 @@ app.post('/add-employee', (req, res) => {
     })
 })
 
-
+// ลบผู้อบรม
 app.post('/delete-cadidate', (req, res) => {
     const emp_id = req.body.emp_id
     const course_id = req.body.course_id
@@ -346,7 +348,7 @@ app.post('/delete-cadidate', (req, res) => {
     })
 })
 
-
+// ประเมินผู้อบรม
 app.post('/update-cadidate', (req, res) => {
     const emp = req.body
     conn.connect().then((err, records) => {
@@ -364,7 +366,7 @@ app.post('/update-cadidate', (req, res) => {
     })
 })
 
-
+// นับจำนวนหลักสูตร
 app.post('/count-courses', (req, res) => {
     const emp = req.body
     conn.connect().then((err, records) => {
@@ -382,6 +384,7 @@ app.post('/count-courses', (req, res) => {
     })
 })
 
+// paging courses per page
 app.post('/get-all-courses-per-page', (req, res) => {
     const start = req.body.start
     conn.connect().then((err, records) => {
@@ -407,6 +410,7 @@ app.post('/get-all-courses-per-page', (req, res) => {
     })
 })
 
+// แสดง id หลักสูตร
 app.post('/get-form', (req, res) => {
     const id = req.body.id
     conn.connect().then(() => {

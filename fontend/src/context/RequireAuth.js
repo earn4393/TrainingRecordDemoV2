@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import React, { useEffect } from 'react';
 import axios from '../api/axios';
 
+// ครอบแต่ละหน้าเพื่อตรวจสอบการล๊อกอิน
 const RequireAuth = ({ children }) => {
     const location = useLocation()
     const nevigate = useNavigate()

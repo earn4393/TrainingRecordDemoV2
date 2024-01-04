@@ -63,6 +63,7 @@ const MenuBer = () => {
               <Nav.Link as={NavLink} to="/add-course" onClick={handleNavbarClose}>Register Courses</Nav.Link>
               <Nav.Link as={NavLink} to="/add-emp-admin" onClick={handleNavbarClose}>Register Employees </Nav.Link >
               {login ?
+                // ตรวจสอบว่ามีการล๊อกอินหรือยัง
                 <NavDropdown title=" ADMIN ASI シ" id="collasible-nav-dropdown">
                   <NavDropdown.Item onClick={auth}>Logout</NavDropdown.Item>
                 </NavDropdown> :
