@@ -202,6 +202,10 @@ table td {
   scale: 1.2;
 }
 
+.red-text {
+  color: red;
+}
+
 
 @media only screen and (min-height: 700px) {
   .content-logo-home {

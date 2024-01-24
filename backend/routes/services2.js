@@ -1,13 +1,13 @@
-const app = require('express').Router();
-const conn = require('../db/db_train.js');
+const app = require('express').Router()
+const conn = require('../db/db_train.js')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
-var sql = require('mssql');
+var sql = require('mssql')
 
 app.use(cookieParser())
 app.use(session(
     {
-        secret: 'key',
+        secret: 'earn@ASI_teain123',
         resave: true,
         saveUninitialized: true,
         cookie: {
@@ -29,7 +29,10 @@ app.post('/auth', (req, res) => {
                 if (records.recordset[0].state === 'admin') {
                     req.session.username = 'admin'
                     res.send({ state: 'admin' })
-                } else res.send({ state: 'user' })
+                } else if (records.recordset[0].state === 'editor') {
+                    req.session.username = 'editor'
+                    res.send({ state: 'editor' })
+                }
             } else res.send({ state: 'user' })
 
         })
@@ -42,6 +45,8 @@ app.post('/auth', (req, res) => {
 app.get('/read-session', (req, res) => {
     if (req.session.username == 'admin') {
         res.send({ state: 'admin' })
+    } else if (req.session.username == 'editor') {
+        res.send({ state: 'editor' })
     } else {
         res.send({ state: 'user' })
     }
@@ -149,7 +154,7 @@ app.post('/get-candidate', (req, res) => {
                     COALESCE(Remark,'') AS remark , department_description AS dep , POSITION_DESCRIPTION AS pos
                     FROM tbl_Transaction FULL JOIN tbl_EMPLOYEE 
                     ON tbl_Transaction.EMPLOYEE_NO  = tbl_EMPLOYEE.EMPLOYEE_NO
-                    where CourseID = '${id}' ORDER BY EntryDate DESC`
+                    where CourseID = '${id}' ORDER BY EntryDate ASC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -185,6 +190,26 @@ app.post('/get-all-courses', (req, res) => {
         console.log(`get-all-courses connect error : ${err}`)
     })
 })
+
+// ข้อมูลพนักงานทั้งหมด
+app.post('/get-all-employee', (req, res) => {
+    conn.connect().then(() => {
+        var request = new sql.Request(conn)
+        var query = `SELECT EMPLOYEE_NO AS id, 
+        (EMPLOYEE_LOCAL_NAME + ' / ' + EMPLOYEE_NAME ) AS 'name' FROM tbl_EMPLOYEE`
+
+        request.query(query, (err, records) => {
+            const data = { data: null }
+            if (err) console.log(`get-employee query err: ${err}`)
+            else if (records.rowsAffected[0] > 0) data.data = records.recordset
+            res.send(data)
+
+        })
+    }).catch((err) => {
+        console.log(`get-employee connect error : ${err}`)
+    })
+
+});
 
 // รหัสหลักสูตรสำหรับใช้ค้นหาหลักสูตร
 app.post('/get-all-courses-by-search', (req, res) => {
@@ -421,7 +446,7 @@ app.post('/get-form', (req, res) => {
         request.query(query, (err, records) => {
             let div = null
             if (err) console.log(`get-form query err: ${err}`)
-            else if (ecords.rowsAffected[0] > 0) div = records.recordset[0].div
+            else if (records.rowsAffected[0] > 0) div = records.recordset[0].div
             res.send(div)
 
         })

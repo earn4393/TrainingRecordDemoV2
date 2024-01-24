@@ -35,7 +35,7 @@ const MenuBer = () => {
   useEffect(() => {
     axios.get('/read-session')
       .then(res => {
-        if (res.data.state === 'admin') setLogin(true)
+        setLogin(res.data.state)
       }
       )
       .catch(err => console.log(err))
@@ -57,19 +57,32 @@ const MenuBer = () => {
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" onClick={handleNavbarToggle} />
           <Navbar.Collapse id="responsive-navbar-nav" className="justify-content-center">
-            <Nav className="me-auto">
-              <Nav.Link as={NavLink} to="/" onClick={handleNavbarClose}> Home</Nav.Link>
-              <Nav.Link as={NavLink} to="/employee" onClick={handleNavbarClose}> Profile Employees</Nav.Link>
-              <Nav.Link as={NavLink} to="/add-course" onClick={handleNavbarClose}>Register Courses</Nav.Link>
-              <Nav.Link as={NavLink} to="/add-emp-admin" onClick={handleNavbarClose}>Register Employees </Nav.Link >
-              {login ?
-                // ตรวจสอบว่ามีการล๊อกอินหรือยัง
+            {login == 'admin' ?
+              <Nav className="me-auto">
+                <Nav.Link as={NavLink} to="/" onClick={handleNavbarClose}> Home</Nav.Link>
+                <Nav.Link as={NavLink} to="/employee" onClick={handleNavbarClose}> Profile Employees</Nav.Link>
+                <Nav.Link as={NavLink} to="/add-course" onClick={handleNavbarClose}>Register Courses</Nav.Link>
+                <Nav.Link as={NavLink} to="/add-emp-admin" onClick={handleNavbarClose}>Register Employees </Nav.Link >
                 <NavDropdown title=" ADMIN ASI シ" id="collasible-nav-dropdown">
                   <NavDropdown.Item onClick={auth}>Logout</NavDropdown.Item>
-                </NavDropdown> :
-                <Nav.Link as={NavLink} to="/login" >Login</Nav.Link>
-              }
-            </Nav>
+                </NavDropdown>
+              </Nav> :
+              login == 'editor' ?
+                <Nav className="me-auto">
+                  <Nav.Link as={NavLink} to="/" onClick={handleNavbarClose}> Home</Nav.Link>
+                  <Nav.Link as={NavLink} to="/employee" onClick={handleNavbarClose}> Profile Employees</Nav.Link>
+                  <Nav.Link as={NavLink} to="/add-course" onClick={handleNavbarClose}>Register Courses</Nav.Link>
+                  <NavDropdown title=" EDITOR ASI シ" id="collasible-nav-dropdown">
+                    <NavDropdown.Item onClick={auth}>Logout</NavDropdown.Item>
+                  </NavDropdown>
+                </Nav> :
+                <Nav className="me-auto">
+                  <Nav.Link as={NavLink} to="/" onClick={handleNavbarClose}> Home</Nav.Link>
+                  <Nav.Link as={NavLink} to="/add-emp-admin" onClick={handleNavbarClose}>Register Employees </Nav.Link >
+                  <Nav.Link as={NavLink} to="/login" >Login</Nav.Link>
+                </Nav>
+
+            }
           </Navbar.Collapse>
         </Container>
       </Navbar>

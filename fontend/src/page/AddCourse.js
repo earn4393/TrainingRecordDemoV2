@@ -31,6 +31,7 @@ const AddCourse = () => {
     const [count, setCount] = useState(0) // จำนวนหลักสูตรทั้งหมด
     const [pageNumber, setPageNumber] = useState(0) // หน้าปัจจุบันที่อยู่
     const [isFind, setIsFind] = useState(true) // สถานะของการแสดง paging 
+    const [login, setLogin] = useState(null)
     const [data, setData] = useState({
         id: '',
         name: '',
@@ -240,7 +241,7 @@ const AddCourse = () => {
                     <Form noValidate validated={validated} onSubmit={handleSubmitEdit}>
                         <Row>
                             <Form.Group className="mb-3" as={Col} >
-                                <Form.Label >รหัสหลักสูตร*:</Form.Label>
+                                <Form.Label >รหัสหลักสูตร<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="XXXXXX"
@@ -251,7 +252,7 @@ const AddCourse = () => {
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col} xs={8}>
-                                <Form.Label>ชื่อหลักสูตร*:</Form.Label>
+                                <Form.Label>ชื่อหลักสูตร<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="XXXXXX"
@@ -319,7 +320,7 @@ const AddCourse = () => {
                         </Row>
                         <Row>
                             <Form.Group className="mb-3" as={Col}>
-                                <Form.Label>วันที่เริ่ม*:</Form.Label>
+                                <Form.Label>วันที่เริ่ม<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="date"
                                     size="sm"
@@ -329,7 +330,7 @@ const AddCourse = () => {
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col}>
-                                <Form.Label>วันที่สิ้นสุด*:</Form.Label>
+                                <Form.Label>วันที่สิ้นสุด<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="date"
                                     size="sm"
@@ -341,7 +342,7 @@ const AddCourse = () => {
                         </Row>
                         <Row>
                             <Form.Group className="mb-3" as={Col}>
-                                <Form.Label>จำนวนเวลา(ชั่วโมง)*:</Form.Label>
+                                <Form.Label>จำนวนเวลา(ชั่วโมง)<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="text"
                                     size="sm"
@@ -390,7 +391,7 @@ const AddCourse = () => {
                     <Form noValidate validated={validated} onSubmit={handleSubmit}>
                         <Row>
                             <Form.Group className="mb-3" as={Col} controlId="validationFormik01">
-                                <Form.Label >รหัสหลักสูตร*:</Form.Label>
+                                <Form.Label >รหัสหลักสูตร<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="XXXXXX"
@@ -402,7 +403,7 @@ const AddCourse = () => {
 
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col} xs={8}>
-                                <Form.Label>ชื่อหลักสูตร*:</Form.Label>
+                                <Form.Label>ชื่อหลักสูตร<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="XXXXXX"
@@ -464,7 +465,7 @@ const AddCourse = () => {
                         </Row>
                         <Row>
                             <Form.Group className="mb-3" as={Col}>
-                                <Form.Label>วันที่เริ่ม*:</Form.Label>
+                                <Form.Label>วันที่เริ่ม<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="date"
                                     size="sm"
@@ -473,7 +474,7 @@ const AddCourse = () => {
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col}>
-                                <Form.Label>วันที่สิ้นสุด*:</Form.Label>
+                                <Form.Label>วันที่สิ้นสุด<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="date"
                                     size="sm"
@@ -484,7 +485,7 @@ const AddCourse = () => {
                         </Row>
                         <Row>
                             <Form.Group className="mb-3" as={Col}>
-                                <Form.Label>จำนวนเวลา(ชั่วโมง)*:</Form.Label>
+                                <Form.Label>จำนวนเวลา(ชั่วโมง)<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
                                     type="text"
                                     size="sm"
@@ -526,6 +527,15 @@ const AddCourse = () => {
         searchCourses()
     }, [])
 
+    useEffect(() => {
+        axios.get('/read-session')
+            .then(res => {
+                setLogin(res.data.state)
+            }
+            )
+            .catch(err => console.log(err))
+    }, [])
+
     return (
         <div>
             <ScrollToTop />
@@ -537,10 +547,14 @@ const AddCourse = () => {
                 <div className="wrapp-bin-course">
                     <div className='content-bin'>
                         {/* สร้างหลักสูตร */}
-                        <Button className='bin' onClick={() => { setIsPopNew(true) }}>
-                            <Icon icon={addIcon} width="30" height="30" />
-                            &nbsp;Add New Course
-                        </Button>
+                        {login == 'admin' ?
+                            <Button className='bin' onClick={() => { setIsPopNew(true) }}>
+                                <Icon icon={addIcon} width="30" height="30" />
+                                &nbsp;Add New Course
+                            </Button>
+                            :
+                            null
+                        }
                     </div>
                     <div className='wrapp-search'>
                         {/* ค้นหาหลักสูตร */}
@@ -552,7 +566,6 @@ const AddCourse = () => {
                                 setIsFind(true)
                                 listCourses(pageNumber)
                             }}
-                            autoFocus
                             placeholder="Plases Fill Course No"
                             resultStringKeyName="id"
                             styling={

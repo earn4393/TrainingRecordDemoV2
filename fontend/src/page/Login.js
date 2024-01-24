@@ -19,7 +19,7 @@ const Login = () => {
         e.preventDefault()
         axios.post('/auth', { user: user, pwd: pwd })
             .then(res => {
-                if (res.data.state === 'admin') {
+                if (res.data.state !== 'user') {
                     navigate(redirectPath, { replace: true })
                     window.location.reload()
                 } else {
