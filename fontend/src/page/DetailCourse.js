@@ -21,15 +21,16 @@ const DetailCourse = () => {
 
     // โหลดข้อมูลหลักสูตร
     const listCourse = async () => {
-        const resCandidate = await axios.post(URL_CANDIDATES, { id: course_id })
-        const resCourse = await axios.post(URL_COURSE, { id: course_id })
-
-        if (resCandidate.data.data != null) {
-            setCandidates(resCandidate.data.data)
-        }
-        if (resCourse.data.data != null) {
-            setCourse(resCourse.data.data)
-        }
+        await axios.post(URL_CANDIDATES, { id: course_id }).then((res) => {
+            if (res.data.data != null) {
+                setCandidates(res.data.data)
+            }
+        })
+        await axios.post(URL_COURSE, { id: course_id }).then((res) => {
+            if (res.data.data != null) {
+                setCourse(res.data.data)
+            }
+        })
     }
     // ส่งออกรายชื่อผู้อบรมเป็นไฟล์ excel
     const exportExcel = () => {

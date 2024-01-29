@@ -206,6 +206,11 @@ table td {
   color: red;
 }
 
+.swal-toast {
+  top: 100px;
+  left: 100px;
+}
+
 
 @media only screen and (min-height: 700px) {
   .content-logo-home {

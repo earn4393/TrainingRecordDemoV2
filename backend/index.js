@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 3333;
+const port = process.env.PORT || 3331;
 
 const callRoutesTrain = require('./routes/services2.js')
 
 app.use(express.json());
 app.use(function (req, res, next) {
-    const allowedOrigins = ['http://localhost:3006'];
+    const allowedOrigins = ['http://localhost:3006', 'http://10.201.133.57:3006'];
 
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {

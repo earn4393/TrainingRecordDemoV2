@@ -17,11 +17,10 @@ const Login = () => {
     axios.defaults.withCredentials = true
     const handleSubmit = async (e) => {
         e.preventDefault()
-        axios.post('/auth', { user: user, pwd: pwd })
+        await axios.post('/auth', { user: user, pwd: pwd })
             .then(res => {
                 if (res.data.state !== 'user') {
                     navigate(redirectPath, { replace: true })
-                    window.location.reload()
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -55,7 +54,7 @@ const Login = () => {
                             style={{ height: '50px', fontSize: '16px' }}
                         />
                     </div>
-                    <button className="submit-btn">Log in</button>
+                    <button type="submit" className="submit-btn">Log in</button>
                 </form>
                 <div className="login slide-up" >
                     <div className="center">

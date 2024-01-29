@@ -11,6 +11,7 @@ const Home = () => {
                 <Figure.Image
                     className='content-logo-home'
                     src={LOGO}
+                    alt='training record'
                 />
                 <Figure.Caption>
                     <h3 className='head-title'>ASAIN STANLEY INTERNATIONAL</h3>

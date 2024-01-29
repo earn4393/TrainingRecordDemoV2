@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import Swal from 'sweetalert2'
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
-import { Container, Table, Modal, Button, Row, Col, Form } from 'react-bootstrap';
+import { Container, Table, Modal, Button, Row, Col, Form, Alert } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
 import ScrollToTop from '../component/ScrollToTop'
 import addIcon from '@iconify/icons-gridicons/add';
@@ -21,6 +20,8 @@ const URL_ALL_EMP = '/get-all-employee' // api รหัสและชื่อ
 const AddEmp = () => {
     const userRef = useRef()
     const [courses, setCouses] = useState([])  //หลักสูตรทั้งหมด
+    const [alert, setAlert] = useState({})
+    const [showAlert, setShowAlert] = useState(false);
     const [employees, setEmployees] = useState([]) //ชื่อและรหัสพนักงานทั้งหมด
     const [course, setCourse] = useState(null) //หลักสูตรที่ต้องการบันทึก
     const [candidates, setCandidates] = useState(null) // ผู้อบรมที่บันทึกใน course 
@@ -64,29 +65,6 @@ const AddEmp = () => {
         setName('')
     }
 
-    // แจ้งเตือนเมื่อ save
-    const Alert = (icon, title, color) => {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "center",
-            grow: 'row',
-            showConfirmButton: false,
-            timer: 1500,
-            color: '#ffffff',
-            background: color
-        });
-
-        return (
-            Toast.fire({
-                icon: icon,
-                title: title,
-            }).then(() => {
-                clearData()
-                userRef.current && userRef.current.focus()
-            })
-        )
-    }
-
     // เพิ่มรายชื่อผู้เข้าอบรม
     const addNewEmp = async () => {
         const data = {
@@ -101,15 +79,17 @@ const AddEmp = () => {
 
         if (index === -1) {
             await axios.post(URL_ADD_EMP, data).then((res) => {
+                setShowAlert(true)
                 if (res.data.code === 200) {
-                    Alert('success', 'บันทึกการเข้าฝึกอบรมสำเร็จ', '#2eb82e')
+                    setAlert({ title: 'บันทึกการเข้าฝึกอบรมสำเร็จ', variant: 'success' })
                     listCandidate(course.id)
                 } else {
-                    Alert('error', 'ไม่สามารถบันทึกการเข้าฝึกอบรมได้', '#cc0000')
+                    setAlert({ title: 'ไม่สามารถบันทึกการเข้าฝึกอบรมได้', variant: 'danger' })
                 }
             })
         } else {
-            Alert('warning', 'ท่านบันทึกการอบรมเรียบร้อยแล้ว', '#ff8c1a')
+            setShowAlert(true)
+            setAlert({ title: 'ท่านบันทึกการอบรมเรียบร้อยแล้ว', variant: 'warning' })
         }
     }
 
@@ -125,6 +105,12 @@ const AddEmp = () => {
                 centered={true}
                 onExited={clearData}
             >
+                {showAlert && (
+                    <Alert variant={alert.variant}>
+                        {alert.title}
+                    </Alert>
+                )}
+
                 <Container>
                     <Modal.Header >
                         <Modal.Title>Add New Trainee</Modal.Title>
@@ -148,13 +134,13 @@ const AddEmp = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group className="mb-3" as={Col} xs='8'>
-                                    <Form.Label>ชื่อ:</Form.Label>
+                                    <Form.Label >ชื่อ:</Form.Label>
                                     <Form.Text style={{ fontSize: '14px' }}>{name ? name : ''}</Form.Text>
                                 </Form.Group>
                             </Row>
                             <Row>
                                 <Form.Group className="mb-3" as={Col}>
-                                    <Form.Label style={{ marginRight: '10px' }}>ระดับความเข้าใจ (ประเมินตนเอง)<span className="red-text">*</span> :</Form.Label>
+                                    <Form.Label from='evaluate' style={{ marginRight: '10px' }}>ระดับความเข้าใจ (ประเมินตนเอง)<span className="red-text">*</span> :</Form.Label>
                                     <Form.Check
                                         inline
                                         label="มาก"
@@ -218,7 +204,8 @@ const AddEmp = () => {
         if (form.checkValidity() === true & name != '') {
             addNewEmp()
         } else {
-            Alert('warning', 'รหัสผ่านไม่ถูกต้อง', '#ff8c1a')
+            setShowAlert(true)
+            setAlert({ title: 'รหัสพนักงานไม่ถูกต้อง', variant: 'warning' })
         }
     };
 
@@ -226,6 +213,22 @@ const AddEmp = () => {
     useEffect(() => {
         listCouses()
     }, [])
+
+    useEffect(() => {
+        let timeoutId;
+        if (showAlert) {
+            timeoutId = setTimeout(() => {
+                setShowAlert(false);
+                clearData();
+                userRef.current && userRef.current.focus();
+            }, 2000);
+        }
+
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, [showAlert]);
+
 
     return (
         <div >
@@ -254,9 +257,9 @@ const AddEmp = () => {
                     // แสดงข้อมูลหลักสูตรและผู้บันทึกอบรมไปแล้ว
                     <div >
                         <div className='wrapp-descript'>
-                            <div><label>รหัสหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.id}</b></label></div>
+                            <div ><label >รหัสหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.id}</b></label></div>
                             <div className="margin-between-detail" />
-                            <div><label>ชื่อหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.name}</b></label></div>
+                            <div ><label >ชื่อหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.name}</b></label></div>
                         </div>
                         <div className='content-bin-addEmp'>
                             {/* ปุ่มบันทึกประวัติผู้อบรม */}

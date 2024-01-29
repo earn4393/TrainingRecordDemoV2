@@ -17,18 +17,21 @@ const ReportEmp = () => {
 
     // โหลดข้อมูลพนักงาน หลักสูตร และฟอร์ม
     const dataEmp = async () => {
-        const resEmp = await axios.post(URL_EMP, { id: id })
-        const resCourse = await axios.post(URL_COURSE, { id: id })
-        const resForm = await axios.post(URL_FORM, { id: 'FO-ADX-003' })
-        if (resEmp.data.data != null) {
-            setEmp(resEmp.data.data)
-        }
-        if (resCourse.data.data != null) {
-            setMyTrain(resCourse.data.data)
-        }
-        if (resForm.data != null) {
-            setDIV(resForm.data)
-        }
+        await axios.post(URL_EMP, { id: id }).then((res) => {
+            if (res.data.data != null) {
+                setEmp(res.data.data)
+            }
+        })
+        await axios.post(URL_COURSE, { id: id }).then((res) => {
+            if (res.data.data != null) {
+                setMyTrain(res.data.data)
+            }
+        })
+        await axios.post(URL_FORM, { id: 'FO-ADX-003' }).then((res) => {
+            if (res.data != null) {
+                setDIV(res.data)
+            }
+        })
     }
     // เริ่มโหลดข้อมูล
     useEffect(() => {

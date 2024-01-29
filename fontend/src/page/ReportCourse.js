@@ -24,36 +24,37 @@ const ReportCourse = () => {
 
     // โหลดข้อมูลหลักสูตร ผู้ฝึกอบรม และฟอร์ม
     const dataCourse = async () => {
-        const resTrainee = await axios.post(URL_TRAINEE, { id: id })
-        const resCourse = await axios.post(URL_COURSE, { id: id })
-        const resForm = await axios.post(URL_FORM, { id: 'FO-ADX-002' })
-
-        if (resTrainee.data.data != null) {
-            let data = resTrainee.data.data
-            data.map((item) => {
-                if (item.pos !== null) {
-                    item.pos = item.pos.slice(item.pos.indexOf('(') + 1, item.pos.length - 1)
-                }
-            })
-            setCandidates(data)
-        }
-        if (resCourse.data.data != null) {
-            const trainer_id = resCourse.data.data.trainer_id
-            setCourse(resCourse.data.data)
-            dataTrainer(trainer_id)
-        }
-        if (resForm.data != null) {
-            console.log(resForm.data)
-            setDIV(resForm.data)
-        }
+        await axios.post(URL_TRAINEE, { id: id }).then((res) => {
+            if (res.data.data != null) {
+                let data = res.data.data
+                data.map((item) => {
+                    if (item.pos !== null) {
+                        item.pos = item.pos.slice(item.pos.indexOf('(') + 1, item.pos.length - 1)
+                    }
+                })
+                setCandidates(data)
+            }
+        })
+        await axios.post(URL_COURSE, { id: id }).then((res) => {
+            if (res.data.data != null) {
+                const trainer_id = res.data.data.trainer_id
+                setCourse(res.data.data)
+                dataTrainer(trainer_id)
+            }
+        })
+        await axios.post(URL_FORM, { id: 'FO-ADX-002' }).then((res) => {
+            if (res.data != null) {
+                setDIV(res.data)
+            }
+        })
     }
     // โหลดข้อมูลผู้ฝึกอบรม
     const dataTrainer = async (id) => {
-        const resTrainer = await axios.post(URL_TRAINER, { id: id })
-        if (resTrainer.data.data != null) {
-            const data = resTrainer.data.data
-            setTrainer(data)
-        }
+        await axios.post(URL_TRAINER, { id: id }).then((res) => {
+            if (res.data.data != null) {
+                setTrainer(res.data.data)
+            }
+        })
     }
     // เริ่มโหลดข้อมูลหลักสูตร
     useEffect(() => {

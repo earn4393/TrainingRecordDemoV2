@@ -13,7 +13,9 @@ app.use(session(
         cookie: {
             secure: false,
             maxAge: 86400000
-        }
+        },
+        proxy: true
+
     }
 ))
 
