@@ -35,6 +35,7 @@ const MenuBer = () => {
   useEffect(() => {
     axios.get('/read-session')
       .then(res => {
+        console.log(res.data.state)
         setLogin(res.data.state)
       }
       )

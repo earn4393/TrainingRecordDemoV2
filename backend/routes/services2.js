@@ -23,8 +23,15 @@ app.use(session(
 app.post('/auth', (req, res) => {
     conn.connect().then(() => {
         var request = new sql.Request(conn)
-        var query = `SELECT Username AS 'user' ,Passwords AS 'pwd' , Permissions AS 'state'  FROM tbl_Accounts
-                        WHERE Username = '${req.body.user}' and Passwords = '${req.body.pwd}'`
+        var query = `
+        SELECT 
+            Username AS 'user' ,
+            Passwords AS 'pwd' , 
+            Permissions AS 'state'  
+        FROM 
+            tbl_Accounts
+        WHERE 
+            Username = '${req.body.user}' and Passwords = '${req.body.pwd}'`
         request.query(query, (err, records) => {
             if (err) console.log(`auth query err: ${err}`)
             else if (records.rowsAffected[0] > 0) {
@@ -71,13 +78,24 @@ app.post('/get-employee', (req, res) => {
     const id = req.body.id
     conn.connect().then(() => {
         var request = new sql.Request(conn)
-        var query = `SELECT EMPLOYEE_NO AS id, EMPLOYEE_LOCAL_NAME AS 'th_name', 
-                    EMPLOYEE_NAME AS 'eng_name' ,CASE WHEN SEX = 'M' THEN 'ชาย' ELSE 'หญิง' END AS sex,
-                    FORMAT(BIRTH_DATE, 'dd/MM/yyyy')as birth,FORMAT(DATE_JOINED, 'dd/MM/yyyy') AS 'join',
-                    COALESCE(QUALIFICATION_DESCRIPTION,'-') AS degree ,COALESCE(division_description,'-') AS div,
-                    COALESCE(department_description,'-') AS dep,COALESCE(POSITION_DESCRIPTION,'-') AS pos ,
-                    YEAR(GETDATE()) - YEAR(tbl_EMPLOYEE.BIRTH_DATE) as 'year' ,
-                    COALESCE(CATEGORY_DESCRIPTION,'-') AS cate  FROM tbl_EMPLOYEE WHERE EMPLOYEE_NO = '${id}'`
+        var query = `
+        SELECT 
+            EMPLOYEE_NO AS id, 
+            EMPLOYEE_LOCAL_NAME AS 'th_name', 
+            EMPLOYEE_NAME AS 'eng_name' ,
+            CASE WHEN SEX = 'M' THEN 'ชาย' ELSE 'หญิง' END AS sex,
+            FORMAT(BIRTH_DATE, 'dd/MM/yyyy')as birth,
+            FORMAT(DATE_JOINED, 'dd/MM/yyyy') AS 'join',
+            COALESCE(QUALIFICATION_DESCRIPTION,'-') AS degree ,
+            COALESCE(division_description,'-') AS div,
+            COALESCE(department_description,'-') AS dep,
+            COALESCE(POSITION_DESCRIPTION,'-') AS pos ,
+            YEAR(GETDATE()) - YEAR(tbl_EMPLOYEE.BIRTH_DATE) as 'year' ,
+            COALESCE(CATEGORY_DESCRIPTION,'-') AS cate  
+        FROM 
+            tbl_EMPLOYEE 
+        WHERE 
+            EMPLOYEE_NO = '${id}'`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -97,12 +115,21 @@ app.post('/get-all-my-course', (req, res) => {
     const id = req.body.id
     conn.connect().then(() => {
         var request = new sql.Request(conn)
-        var query = `SELECT  tbl_Transaction.CourseID AS id,COALESCE(CourseName,'-') AS 'name',
-                    COALESCE(FORMAT(CourseStart, 'dd/MM/yyyy'),'-') AS 'date',
-                    DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'place',
-                    COALESCE(TraineeEvaluate,'-') AS 'trainee',COALESCE(TrainerEvaluate,'-') AS 'trainer' 
-                    FROM tbl_Transaction FULL JOIN tbl_Course on tbl_Transaction.CourseID = tbl_Course.CourseID 
-                    where tbl_Transaction.EMPLOYEE_NO =  '${id}' ORDER BY EntryDate ASC`
+        var query = `
+            SELECT  
+                tbl_Transaction.CourseID AS id,
+                COALESCE(CourseName,'-') AS 'name',
+                COALESCE(FORMAT(CourseStart, 'dd/MM/yyyy'),'-') AS 'date',
+                DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'place',
+                COALESCE(TraineeEvaluate,'-') AS 'trainee',COALESCE(TrainerEvaluate,'-') AS 'trainer' 
+            FROM 
+                tbl_Transaction 
+            FULL JOIN 
+                tbl_Course 
+            ON 
+                tbl_Transaction.CourseID = tbl_Course.CourseID                     
+            WHERE 
+                tbl_Transaction.EMPLOYEE_NO =  '${id}' ORDER BY EntryDate ASC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -121,11 +148,20 @@ app.post('/get-course', (req, res) => {
     conn.connect().then((err, records) => {
 
         var request = new sql.Request(conn)
-        var query = `SELECT CourseID AS 'id',COALESCE(CourseName,'-') AS 'name',
-                    COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
-                    TrainerID AS 'trainer_id' ,COALESCE(TrainerName,'-') AS 'trainer',DurationHour AS 'hr',
-                    COALESCE(CourseLoc,'-') AS 'place',COALESCE(FORMAT(CourseStart, 'dd/MM/yyyy'),'-') AS 'start',
-                    COALESCE(FORMAT(CourseEnd, 'dd/MM/yyyy'),'-') AS 'end' FROM tbl_Course WHERE CourseID =  '${id}'`
+        var query = `
+        SELECT 
+            CourseID AS 'id',
+            COALESCE(CourseName,'-') AS 'name',
+            COALESCE(CoursePurpose,'-') AS 'aim',
+            COALESCE(CourseDescript,'-') AS 'des',
+            TrainerID AS 'trainer_id' ,
+            COALESCE(TrainerName,'-') AS 'trainer',
+            DurationHour AS 'hr',
+            COALESCE(CourseLoc,'-') AS 'place',
+            COALESCE(FORMAT(CourseStart, 'dd/MM/yyyy'),'-') AS 'start',
+            COALESCE(FORMAT(CourseEnd, 'dd/MM/yyyy'),'-') AS 'end' 
+        FROM 
+            tbl_Course WHERE CourseID =  '${id}'`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -144,19 +180,30 @@ app.post('/get-candidate', (req, res) => {
     conn.connect().then((err, records) => {
 
         var request = new sql.Request(conn)
-        var query = `SELECT tbl_Transaction.EMPLOYEE_NO AS id,COALESCE(
-                    CASE 
-                    WHEN EMPLOYEE_TITLE = 'MR' THEN 'นาย'  
-                    WHEN EMPLOYEE_TITLE = 'MS' THEN 'น.ส.'  
-                    WHEN EMPLOYEE_TITLE = 'MRS' THEN 'นาง'  
-                    END,'-') AS title,
-                    COALESCE(EMPLOYEE_LOCAL_NAME,'-') AS 'th_name',COALESCE(EMPLOYEE_NAME,'-') AS 'eng_name',
-                    COALESCE(NATIONAL_ID2,'-') AS identify,COALESCE(TraineeEvaluate,'-') AS trainee,
-                    COALESCE(TrainerEvaluate,'-') AS trainer,COALESCE(FORMAT(EntryDate, 'dd/MM/yyyy'),'-') as date,
-                    COALESCE(Remark,'') AS remark , department_description AS dep , POSITION_DESCRIPTION AS pos
-                    FROM tbl_Transaction FULL JOIN tbl_EMPLOYEE 
-                    ON tbl_Transaction.EMPLOYEE_NO  = tbl_EMPLOYEE.EMPLOYEE_NO
-                    where CourseID = '${id}' ORDER BY EntryDate ASC`
+        var query = `
+        SELECT 
+            tbl_Transaction.EMPLOYEE_NO AS id,COALESCE(
+            CASE 
+            WHEN EMPLOYEE_TITLE = 'MR' THEN 'นาย'  
+            WHEN EMPLOYEE_TITLE = 'MS' THEN 'น.ส.'  
+            WHEN EMPLOYEE_TITLE = 'MRS' THEN 'นาง'  
+            END,'-') AS title,
+            COALESCE(EMPLOYEE_LOCAL_NAME,'-') AS 'th_name',
+            COALESCE(EMPLOYEE_NAME,'-') AS 'eng_name',
+            COALESCE(NATIONAL_ID2,'-') AS identify,
+            COALESCE(TraineeEvaluate,'-') AS trainee,
+            COALESCE(TrainerEvaluate,'-') AS trainer,
+            COALESCE(FORMAT(EntryDate, 'dd/MM/yyyy'),'-') as date,
+            COALESCE(Remark,'') AS remark , 
+            department_description AS dep , 
+            POSITION_DESCRIPTION AS pos
+        FROM 
+            tbl_Transaction 
+        FULL JOIN 
+            tbl_EMPLOYEE 
+        ON 
+            tbl_Transaction.EMPLOYEE_NO  = tbl_EMPLOYEE.EMPLOYEE_NO
+        WHERE CourseID = '${id}' ORDER BY EntryDate ASC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -174,13 +221,22 @@ app.post('/get-all-courses', (req, res) => {
     conn.connect().then((err, records) => {
 
         var request = new sql.Request(conn)
-        var query = `SELECT CourseID AS 'id',CourseName AS 'name',
-                    COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
-                    COALESCE(TrainerID,'-') AS 'trainer_id',COALESCE(TrainerName,'-') AS 'trainer',
-                    DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'site',
-                    COALESCE(FORMAT(CourseStart, 'yyyy-MM-dd'),'-') AS 'start', 
-                    COALESCE(FORMAT(CourseEnd, 'yyyy-MM-dd'),'-') AS 'end' ,
-                    COALESCE(TrainerCom,'-') AS 'div' FROM tbl_Course  ORDER BY CourseStart DESC`
+        var query = `
+        SELECT 
+            CourseID AS 'id',CourseName AS 'name',
+            COALESCE(CoursePurpose,'-') AS 'aim',
+            COALESCE(CourseDescript,'-') AS 'des',
+            COALESCE(TrainerID,'-') AS 'trainer_id',
+            COALESCE(TrainerName,'-') AS 'trainer',
+            DurationHour AS 'hr',
+            COALESCE(CourseLoc,'-') AS 'site',
+            COALESCE(FORMAT(CourseStart, 'yyyy-MM-dd'),'-') AS 'start', 
+            COALESCE(FORMAT(CourseEnd, 'yyyy-MM-dd'),'-') AS 'end' ,
+            COALESCE(TrainerCom,'-') AS 'div' 
+        FROM 
+            tbl_Course  
+        ORDER BY 
+            CourseStart DESC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -197,8 +253,12 @@ app.post('/get-all-courses', (req, res) => {
 app.post('/get-all-employee', (req, res) => {
     conn.connect().then(() => {
         var request = new sql.Request(conn)
-        var query = `SELECT EMPLOYEE_NO AS id, 
-        (EMPLOYEE_LOCAL_NAME + ' / ' + EMPLOYEE_NAME ) AS 'name' FROM tbl_EMPLOYEE`
+        var query = `
+        SELECT 
+            EMPLOYEE_NO AS id, 
+            (EMPLOYEE_LOCAL_NAME + ' / ' + EMPLOYEE_NAME ) AS 'name' 
+        FROM 
+            tbl_EMPLOYEE`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -218,8 +278,14 @@ app.post('/get-all-courses-by-search', (req, res) => {
     conn.connect().then((err, records) => {
 
         var request = new sql.Request(conn)
-        var query = `SELECT CourseID AS 'id',CourseName AS 'name'
-                    FROM tbl_Course  ORDER BY CourseStart DESC`
+        var query = `
+        SELECT 
+            CourseID AS 'id',
+            CourseName AS 'name'
+        FROM 
+            tbl_Course  
+        ORDER BY 
+            CourseStart DESC , CourseID DESC`
 
         request.query(query, (err, records) => {
             const data = { data: null }
@@ -342,8 +408,9 @@ app.post('/add-employee', (req, res) => {
         var request = new sql.Request(conn)
         const trainer = emp.trainer != '' ? `'${emp.trainer}'` : 'NULL'
         const remark = emp.remark != '' ? `'${emp.remark}'` : 'NULL'
-        var query = `INSERT INTO tbl_Transaction (CourseID,EMPLOYEE_NO,TraineeEvaluate,
-            TrainerEvaluate,Remark) 
+        var query = `
+        INSERT INTO 
+            tbl_Transaction (CourseID,EMPLOYEE_NO,TraineeEvaluate,TrainerEvaluate,Remark) 
             VALUES('${emp.course_id}','${emp.emp_id}','${emp.trainee}',${trainer},${remark})`
         request.query(query, (err, records) => {
             if (err) {
@@ -362,7 +429,11 @@ app.post('/delete-cadidate', (req, res) => {
     const course_id = req.body.course_id
     conn.connect().then((err, records) => {
         var request = new sql.Request(conn)
-        var query = `DELETE FROM tbl_Transaction WHERE EMPLOYEE_NO = '${emp_id}' and CourseID = '${course_id}'`
+        var query = `
+        DELETE FROM 
+            tbl_Transaction 
+        WHERE 
+            EMPLOYEE_NO = '${emp_id}' and CourseID = '${course_id}'`
 
         request.query(query, (err, records) => {
             if (err) {
@@ -380,8 +451,13 @@ app.post('/update-cadidate', (req, res) => {
     const emp = req.body
     conn.connect().then((err, records) => {
         var request = new sql.Request(conn)
-        var query = `UPDATE tbl_Transaction SET TrainerEvaluate = '${emp.trainer}', Remark = '${emp.remark}' 
-                    WHERE EMPLOYEE_NO = '${emp.emp_id}' and CourseID = '${emp.course_id}'`
+        var query = `
+        UPDATE 
+            tbl_Transaction 
+        SET 
+            TrainerEvaluate = '${emp.trainer}', Remark = '${emp.remark}' 
+        WHERE 
+            EMPLOYEE_NO = '${emp.emp_id}' and CourseID = '${emp.course_id}'`
         request.query(query, (err, records) => {
             if (err) {
                 console.log(`update-cadidate query err: ${err}`)
@@ -416,14 +492,25 @@ app.post('/get-all-courses-per-page', (req, res) => {
     const start = req.body.start
     conn.connect().then((err, records) => {
         var request = new sql.Request(conn)
-        var query = `SELECT CourseID AS 'id',CourseName AS 'name',
-                    COALESCE(CoursePurpose,'-') AS 'aim',COALESCE(CourseDescript,'-') AS 'des',
-                    COALESCE(TrainerID,'-') AS 'trainer_id',COALESCE(TrainerName,'-') AS 'trainer',
-                    DurationHour AS 'hr',COALESCE(CourseLoc,'-') AS 'site',
-                    COALESCE(FORMAT(CourseStart, 'yyyy-MM-dd'),'-') AS 'start', 
-                    COALESCE(FORMAT(CourseEnd, 'yyyy-MM-dd'),'-') AS 'end' ,
-                    COALESCE(TrainerCom,'-') AS 'div' FROM tbl_Course  ORDER BY CourseStart DESC 
-                    OFFSET ${start} ROWS FETCH NEXT 50 ROWS ONLY`
+        var query = `
+    SELECT 
+        CourseID AS 'id',
+        CourseName AS 'name',
+        COALESCE(CoursePurpose, '-') AS 'aim',
+        COALESCE(CourseDescript, '-') AS 'des',
+        COALESCE(TrainerID, '-') AS 'trainer_id',
+        COALESCE(TrainerName, '-') AS 'trainer',
+        DurationHour AS 'hr',
+        COALESCE(CourseLoc, '-') AS 'site',
+        COALESCE(FORMAT(CourseStart, 'yyyy-MM-dd'), '-') AS 'start',
+        COALESCE(FORMAT(CourseEnd, 'yyyy-MM-dd'), '-') AS 'end',
+        COALESCE(TrainerCom, '-') AS 'div' 
+    FROM 
+        tbl_Course  
+    ORDER BY 
+        CourseStart DESC, CourseID DESC
+    OFFSET ${start} ROWS FETCH NEXT 50 ROWS ONLY
+        `
 
 
         request.query(query, (err, records) => {

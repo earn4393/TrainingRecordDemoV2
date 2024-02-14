@@ -20,8 +20,8 @@ const URL_ALL_EMP = '/get-all-employee' // api รหัสและชื่อ
 const AddEmp = () => {
     const userRef = useRef()
     const [courses, setCouses] = useState([])  //หลักสูตรทั้งหมด
-    const [alert, setAlert] = useState({})
-    const [showAlert, setShowAlert] = useState(false);
+    const [alert, setAlert] = useState({}) // /การแจ้งเตือน
+    const [showAlert, setShowAlert] = useState(false); // สถานะการแจ้งเตือน
     const [employees, setEmployees] = useState([]) //ชื่อและรหัสพนักงานทั้งหมด
     const [course, setCourse] = useState(null) //หลักสูตรที่ต้องการบันทึก
     const [candidates, setCandidates] = useState(null) // ผู้อบรมที่บันทึกใน course 
@@ -221,7 +221,7 @@ const AddEmp = () => {
                 setShowAlert(false);
                 clearData();
                 userRef.current && userRef.current.focus();
-            }, 2000);
+            }, 1500);
         }
 
         return () => {

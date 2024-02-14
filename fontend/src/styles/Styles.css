@@ -101,10 +101,6 @@
   align-items: center;
 }
 
-.bin:hover {
-  background-color: #495867;
-}
-
 
 .header-table {
   background-color: #D8DBE2;
@@ -206,9 +202,20 @@ table td {
   color: red;
 }
 
-.swal-toast {
-  top: 100px;
-  left: 100px;
+.search-container {
+  display: flex;
+  align-items: center;
+  border-radius: 30px;
+  padding: 5px 10px;
+}
+
+
+.search-input {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  width: 100%;
+  border-radius: 30px;
 }
 
 

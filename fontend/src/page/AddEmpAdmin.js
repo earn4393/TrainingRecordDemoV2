@@ -33,7 +33,7 @@ const AddEmpAdmin = () => {
     const [empID, setEmpID] = useState('') // รหัสพนักงาน
     const [name, setName] = useState('') // ชื่อพนักงาน
     const [select1, setSelect1] = useState('มาก') // สถานะความเข้าใจของผู้อบรม
-    const [select2, setSelect2] = useState('A') // สถานะความเข้าใจของผู้สอน
+    const [select2, setSelect2] = useState('') // สถานะความเข้าใจของผู้สอน
     const [remark, setRemark] = useState('') // หมายเหตุ
 
 
@@ -69,7 +69,7 @@ const AddEmpAdmin = () => {
         setEmpID('')
         setName('')
         setSelect1('มาก')
-        setSelect2('A')
+        setSelect2('')
         setRemark('')
     }
 
@@ -535,13 +535,19 @@ const AddEmpAdmin = () => {
                 setShowAlert(false);
                 clearData();
                 userRef.current && userRef.current.focus();
-            }, 2000);
+            }, 1500);
         }
 
         return () => {
             clearTimeout(timeoutId);
         };
     }, [showAlert]);
+
+    useEffect(() => {
+        if (isPopEditAll) {
+            setSelect2('A')
+        }
+    }, [isPopEditAll]);
 
 
     return (
@@ -553,7 +559,7 @@ const AddEmpAdmin = () => {
                     {/* ค้นหาหลักสูตร */}
                     <ReactSearchAutocomplete
                         items={courses}
-                        fuseOptions={{ keys: ["id", "name"] }}
+                        fuseOptions={{ keys: ["id"] }}
                         onSelect={handleOnSelect}
                         autoFocus
                         placeholder="Plases Fill Course No"

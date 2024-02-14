@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'
-import { Container, Table, FormControl, Button } from 'react-bootstrap';
+import { Container, Table, FormControl, Button, Form } from 'react-bootstrap';
 import ScrollToTop from '../component/ScrollToTop'
 import { Icon } from '@iconify/react';
 import printIcon from '@iconify/icons-material-symbols/print';
@@ -45,12 +45,17 @@ const Employee = () => {
                     <h1 className='head-title'>Profile Employee</h1>
                     <div className='wrapp-search'>
                         {/* ช่องค้นหา */}
-                        <FormControl
-                            placeholder="Plases Fill Employee No"
-                            type="search"
-                            onChange={search}
-                            style={{ borderRadius: '30px' }}
-                        />
+                        <Form.Group className="search-container">
+                            <Form.Label className="search-icon">
+                                <Icon icon="ic:baseline-search" width="35" height="35" style={{ color: "#B4B4B8" }} />
+                            </Form.Label>
+                            <FormControl
+                                placeholder="Plases Fill Employee No"
+                                className="search-input"
+                                type="search"
+                                onChange={search}
+                            />
+                        </Form.Group>
                     </div>
                 </div>
                 <ScrollToTop smooth='true' />
