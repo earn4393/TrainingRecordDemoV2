@@ -255,7 +255,7 @@ const AddEmp = () => {
             <Container>
                 {isShow ?
                     // แสดงข้อมูลหลักสูตรและผู้บันทึกอบรมไปแล้ว
-                    <div >
+                    <div style={{ marginTop: '20px' }}>
                         <div className='wrapp-descript'>
                             <div ><label >รหัสหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.id}</b></label></div>
                             <div className="margin-between-detail" />

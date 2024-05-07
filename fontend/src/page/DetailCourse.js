@@ -68,6 +68,7 @@ const DetailCourse = () => {
                 <h1 className='head-title'>Report Course</h1>
             </div>
             <Container>
+                <br></br>
                 <div className="wrapp-descript">
                     <div className="descript-box">
                         <label>รหัสหลักสูตร : &nbsp; <b style={{ color: '#6289b5' }}>{course && course.id}</b></label>
@@ -116,6 +117,10 @@ const DetailCourse = () => {
                                 &nbsp;Print Review
                             </Button>
                         </Link>
+                    </div>
+                    <div style={{ color: '#6289b5' }}>
+                        {/* จำนวนผู้บันทึกประวัติ */}
+                        all candidates : {candidates !== null ? candidates.length : 0}
                     </div>
                     <Table striped bordered hover responsive size='sm'>
                         <thead className='header-table'>

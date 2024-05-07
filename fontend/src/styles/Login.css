@@ -14,8 +14,8 @@
 .form-structor {
   background-color: #222;
   border-radius: 15px;
-  height: 550px;
-  width: 350px;
+  height: 450px;
+  width: 50%;
   position: relative;
   overflow: hidden;
 }
@@ -30,7 +30,7 @@
   left: 0;
   background-repeat: no-repeat;
   background-position: left bottom;
-  background-size: 500px;
+  background-size: 100%;
   background-image: url("../image/photo-1503602642458-232111445657.webp");
 }
 

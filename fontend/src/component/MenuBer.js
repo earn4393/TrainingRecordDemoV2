@@ -1,13 +1,14 @@
-import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
+import { Nav, Navbar, NavDropdown, Container, Dropdown } from 'react-bootstrap';
 import React, { useState, useEffect } from "react";
 import axios from '../api/axios';
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import LOGO from '../image/logo1.webp'
 import '../styles/Styles.css'
 
 const MenuBer = () => {
   const [login, setLogin] = useState(null)
   const [expanded, setExpanded] = useState(false);
+  const nevigate = useNavigate()
 
   const handleNavbarToggle = () => {
     setExpanded(!expanded);
@@ -24,6 +25,7 @@ const MenuBer = () => {
       .then(res => {
         if (res.data) {
           setLogin(false)
+          nevigate('/')
           window.location.reload()
         }
         else alert('logout unsuccess!')
@@ -35,7 +37,6 @@ const MenuBer = () => {
   useEffect(() => {
     axios.get('/read-session')
       .then(res => {
-        console.log(res.data.state)
         setLogin(res.data.state)
       }
       )
@@ -61,9 +62,16 @@ const MenuBer = () => {
             {login == 'admin' ?
               <Nav className="me-auto">
                 <Nav.Link as={NavLink} to="/" onClick={handleNavbarClose}> Home</Nav.Link>
-                <Nav.Link as={NavLink} to="/employee" onClick={handleNavbarClose}> Profile Employees</Nav.Link>
-                <Nav.Link as={NavLink} to="/add-course" onClick={handleNavbarClose}>Register Courses</Nav.Link>
-                <Nav.Link as={NavLink} to="/add-emp-admin" onClick={handleNavbarClose}>Register Employees </Nav.Link >
+                <NavDropdown title="Courses" id="collasible-nav-dropdown">
+                  <NavDropdown.Item href="/add-course">Add/Remove Courses</NavDropdown.Item>
+                </NavDropdown>
+                <NavDropdown title="Employees" id="collasible-nav-dropdown">
+                  <NavDropdown.Item href="/add-emp-admin">Training History</NavDropdown.Item>
+                </NavDropdown>
+                <NavDropdown title="Reports" id="collasible-nav-dropdown">
+                  <Dropdown.Item href="/courses">FO-ADX-002</Dropdown.Item>
+                  <Dropdown.Item href="/employee">FO-ADX-003</Dropdown.Item>
+                </NavDropdown>
                 <NavDropdown title=" ADMIN ASI シ" id="collasible-nav-dropdown">
                   <NavDropdown.Item onClick={auth}>Logout</NavDropdown.Item>
                 </NavDropdown>
@@ -71,15 +79,20 @@ const MenuBer = () => {
               login == 'editor' ?
                 <Nav className="me-auto">
                   <Nav.Link as={NavLink} to="/" onClick={handleNavbarClose}> Home</Nav.Link>
-                  <Nav.Link as={NavLink} to="/employee" onClick={handleNavbarClose}> Profile Employees</Nav.Link>
-                  <Nav.Link as={NavLink} to="/add-course" onClick={handleNavbarClose}>Register Courses</Nav.Link>
+                  <NavDropdown title="Courses" id="collasible-nav-dropdown">
+                    <NavDropdown.Item href="/add-course">Add/Remove Courses</NavDropdown.Item>
+                  </NavDropdown>
+                  <NavDropdown title="Reports" id="collasible-nav-dropdown">
+                    <Dropdown.Item href="/courses">FO-ADX-002</Dropdown.Item>
+                    <Dropdown.Item href="/employee">FO-ADX-003</Dropdown.Item>
+                  </NavDropdown>
                   <NavDropdown title=" EDITOR ASI シ" id="collasible-nav-dropdown">
                     <NavDropdown.Item onClick={auth}>Logout</NavDropdown.Item>
                   </NavDropdown>
                 </Nav> :
                 <Nav className="me-auto">
                   <Nav.Link as={NavLink} to="/" onClick={handleNavbarClose}> Home</Nav.Link>
-                  <Nav.Link as={NavLink} to="/add-emp-admin" onClick={handleNavbarClose}>Register Employees </Nav.Link >
+                  <Nav.Link as={NavLink} to="/add-emp-admin" onClick={handleNavbarClose}>Training History</Nav.Link >
                   <Nav.Link as={NavLink} to="/login" >Login</Nav.Link>
                 </Nav>
 

@@ -11,6 +11,9 @@ import AddEmpAdmin from './page/AddEmpAdmin';
 import Login from './page/Login';
 import ReqRequireAuth from './context/RequireAuth'
 import MenuBer from './component/MenuBer';
+import Courses from './page/Courses';
+import UploadIMG from './page/UploadIMG';
+import Print from './page/Print'
 
 
 
@@ -22,8 +25,10 @@ function App() {
         {/* Lock Page */}
         <Route path='/' element={<MenuBer />}>
           <Route path='employee' element={<ReqRequireAuth><Employee /></ReqRequireAuth>} />
+          <Route path='courses' element={<ReqRequireAuth><Courses /></ReqRequireAuth>} />
           <Route path='add-emp-admin' element={<ReqRequireAuth><AddEmpAdmin /></ReqRequireAuth>} />
           <Route path='add-course' element={<ReqRequireAuth><AddCourse /></ReqRequireAuth>} />
+
 
           {/* don't Locck Page */}
           <Route path='/' element={<Home />} />
@@ -31,9 +36,11 @@ function App() {
 
         </Route>
         <Route path='login' element={<Login />} />
-        <Route path='report-emp/:id' element={<ReportEmp />} />
-        <Route path='detail-course/:id' element={<DetailCourse />} />
-        <Route path='report-course/:id' element={<ReportCourse />} />
+        <Route path='report-course/:id' element={<ReqRequireAuth><ReportCourse /></ReqRequireAuth>} />
+        <Route path='report-emp/:id' element={<ReqRequireAuth><ReportEmp /></ReqRequireAuth>} />
+        <Route path='detail-course/:id' element={<ReqRequireAuth><DetailCourse /></ReqRequireAuth>} />
+        <Route path='upload' element={<UploadIMG />} />
+        <Route path='report' element={<Print />} />
       </Routes>
     </BrowserRouter>
   );

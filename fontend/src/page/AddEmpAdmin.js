@@ -69,7 +69,6 @@ const AddEmpAdmin = () => {
         setEmpID('')
         setName('')
         setSelect1('มาก')
-        setSelect2('')
         setRemark('')
     }
 
@@ -82,6 +81,7 @@ const AddEmpAdmin = () => {
             trainer: select2,
             remark: remark
         }
+
         const index = candidates != null ? candidates.findIndex((item) => item.id === empID) : -1
 
         if (index === -1) {
@@ -352,6 +352,7 @@ const AddEmpAdmin = () => {
                         <Button variant="secondary" onClick={() => {
                             setIsPopNew(false)
                             clearData()
+                            setSelect2('')
                         }}>
                             Close
                         </Button>
@@ -483,6 +484,7 @@ const AddEmpAdmin = () => {
                         <Button variant="secondary" onClick={() => {
                             setIsPopEditAll(false)
                             clearData()
+                            setSelect2('')
                         }}>
                             Close
                         </Button>
@@ -549,12 +551,18 @@ const AddEmpAdmin = () => {
         }
     }, [isPopEditAll]);
 
+    useEffect(() => {
+        if (empID === '' && (isPopNew || isPopEditAll)) {
+            setName('');
+        }
+    }, [empID, isPopNew, isPopEditAll]);
+
 
     return (
         <div >
             <ScrollToTop />
             <div className="wrapp-header">
-                <h1 className="head-title">Register Employees</h1>
+                <h1 className="head-title">Training History</h1>
                 <div className='wrapp-search'>
                     {/* ค้นหาหลักสูตร */}
                     <ReactSearchAutocomplete
@@ -576,6 +584,7 @@ const AddEmpAdmin = () => {
                 {isShow ?
                     // แสดงข้อมูลหลักสูตรและผู้บันทึกอบรมไปแล้ว
                     <div >
+                        <br></br>
                         <div className='wrapp-descript' style={{ marginBottom: '20px' }}>
                             <div ><label>รหัสหลักสูตร : &nbsp;<b style={{ color: '#6289b5' }}>{course && course.id}</b></label></div>
                             <div className="margin-between-detail" />

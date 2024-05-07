@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { Container, Table, FormControl, Button, Form } from 'react-bootstrap';
+import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import ScrollToTop from '../component/ScrollToTop'
 import { Icon } from '@iconify/react';
 import printIcon from '@iconify/icons-material-symbols/print';
@@ -10,21 +11,13 @@ import '../styles/Styles.css'
 const URL_EMP = '/get-employee'  //api เรียกดูข้อมูลพนักงาน
 const URL_COURSE = '/get-all-my-course' //api เรียกดูหลักสูตรที่พนักงานฝึกอบรมทั้งหมด
 
+
 // ตรวจสอบประวัติการฝึกอบรมของพนักงาน 
 const Employee = () => {
     const [emp, setEmp] = useState(null)
     const [allMyCourse, setAllMyCourse] = useState(null)
+    const [login, setLogin] = useState(null)
 
-    // เรียกดูข้อมูลพนักงาน
-    const search = (e) => {
-        if (e.target.value.length === 6) {
-            handleChangeInput(e.target.value)
-        }
-        else {
-            setEmp(null)
-            setAllMyCourse(null)
-        }
-    }
     // หาข้อมูลพนักงานในฐานข้อมูล
     const handleChangeInput = async (emp_no) => {
         const resEmp = await axios.post(URL_EMP, { id: emp_no })
@@ -38,6 +31,21 @@ const Employee = () => {
         }
     }
 
+    const handleOnSearch = (item) => {
+        if (/^\d{6}$/.test(item)) {
+            handleChangeInput(item)
+        }
+    }
+
+    useEffect(() => {
+        axios.get('/read-session')
+            .then(res => {
+                setLogin(res.data.state)
+            }
+            )
+            .catch(err => console.log(err))
+    }, [])
+
     return (
         <div >
             <div>
@@ -45,23 +53,28 @@ const Employee = () => {
                     <h1 className='head-title'>Profile Employee</h1>
                     <div className='wrapp-search'>
                         {/* ช่องค้นหา */}
-                        <Form.Group className="search-container">
-                            <Form.Label className="search-icon">
-                                <Icon icon="ic:baseline-search" width="35" height="35" style={{ color: "#B4B4B8" }} />
-                            </Form.Label>
-                            <FormControl
-                                placeholder="Plases Fill Employee No"
-                                className="search-input"
-                                type="search"
-                                onChange={search}
-                            />
-                        </Form.Group>
+                        <ReactSearchAutocomplete
+                            onSearch={handleOnSearch}
+                            onClear={() => {
+                                setEmp(null)
+                                setAllMyCourse(null)
+                            }}
+                            autoFocus
+                            placeholder="Plases Fill Employee No"
+                            showNoResults={false}
+                            styling={
+                                {
+                                    backgroundColor: "#D8DBE2",
+                                }
+                            }
+                        />
                     </div>
                 </div>
                 <ScrollToTop smooth='true' />
                 {emp ?
                     // ถ้าเจอข้อมูลพนักงานให้แสดง
                     <Container>
+                        <br></br>
                         <div className='wrapp-descript'>
                             <div className='descript-box'>
                                 <label >รหัสพนักงาน : <b style={{ color: '#6289b5' }}>{emp.id}</b></label>
@@ -69,25 +82,30 @@ const Employee = () => {
                             <div className='descript-box'>
                                 <label >ชื่อ : <b style={{ color: '#6289b5' }}>{emp.th_name}/{emp.eng_name}</b></label>
                             </div>
-                            <div className='descript-box'>
-                                <label >เพศ : <b style={{ color: '#6289b5' }}>{emp.sex}</b></label>
-                            </div>
-                            <div className='descript-box'>
-                                <label >วันเกิด : <b style={{ color: '#6289b5' }}>{emp.birth}</b></label>
-                            </div>
-                            <div className='descript-box'>
-                                <label >การศึกษา : <b style={{ color: '#6289b5' }}>{emp.degree}</b></label>
-                            </div>
-                            <div className='descript-box'>
-                                <label >แผนก : <b style={{ color: '#6289b5' }}>{emp.dep}</b></label>
-                            </div>
-                            <div className='descript-box'>
-                                <label >ฝ่าย : <b style={{ color: '#6289b5' }}>{emp.div}</b></label>
-                            </div>
-                            <div className='descript-box'>
-                                <label >ตำแหน่ง : <b style={{ color: '#6289b5' }}>{emp.pos}</b></label>
-                            </div>
                         </div>
+                        {login == 'admin' ?
+                            <div className='wrapp-descript'>
+                                <div className='descript-box'>
+                                    <label >เพศ : <b style={{ color: '#6289b5' }}>{emp.sex}</b></label>
+                                </div>
+                                <div className='descript-box'>
+                                    <label >วันเกิด : <b style={{ color: '#6289b5' }}>{emp.birth}</b></label>
+                                </div>
+                                <div className='descript-box'>
+                                    <label >การศึกษา : <b style={{ color: '#6289b5' }}>{emp.degree}</b></label>
+                                </div>
+                                <div className='descript-box'>
+                                    <label >แผนก : <b style={{ color: '#6289b5' }}>{emp.dep}</b></label>
+                                </div>
+                                <div className='descript-box'>
+                                    <label >ฝ่าย : <b style={{ color: '#6289b5' }}>{emp.div}</b></label>
+                                </div>
+                                <div className='descript-box'>
+                                    <label >ตำแหน่ง : <b style={{ color: '#6289b5' }}>{emp.pos}</b></label>
+                                </div>
+                            </div> :
+                            <br></br>
+                        }
                         <div className='content-bin'>
                             {/* ปริ้นเป็น PDF */}
                             <Link

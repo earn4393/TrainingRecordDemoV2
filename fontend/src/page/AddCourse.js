@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
-import { Container, Table, Button, Modal, Form, Col, Row } from 'react-bootstrap';
+import { Container, Table, Button, Modal, Form, Col, Row, Alert, } from 'react-bootstrap';
 import ReactPaginate from "react-paginate";
 import { Icon } from '@iconify/react';
 import ScrollToTop from '../component/ScrollToTop'
@@ -19,11 +19,14 @@ const URL_DEL_COURSE = '/delete-course' // ลิงค์สำหรับล�
 const URL_EDIT_COURSE = '/edit-course' // ลิงค์สำหรับแก้ไขหลักสูจร
 const URL_DEL_TST = '/delete-transaction-by-course' // ลิงค์ลบพนักงานอยู่ในคอร์สนี้
 const URL_COURSES_PER_PAGE = '/get-all-courses-per-page' // ลิงค์เรียกคอร์สตามการแบ่งหน้า
+const URL_ALL_EMP = '/get-all-employee' // api รหัสและชื่อพนักงานทั้งหมด
 
 // แสดง เพิ่ม แก้ไข และลบหลักสูตร
 const AddCourse = () => {
     const [validated, setValidated] = useState(null);
+    const [checkName, setCheckName] = useState(false)
     const [courses, setCouses] = useState([]) // หลักสูตรทั้งหมด
+    const [employees, setEmployees] = useState([]) //ชื่อและรหัสพนักงานทั้งหมด
     const [showCourses, setShowCouses] = useState(null) //หลักสูตรในแต่ละหน้า
     const [isPopEdit, setIsPopEdit] = useState(false) //สถานะป๊อปอัพแก้ไขหลักสูตรว่าจะให้แสดงหรือไม่
     const [isPopNew, setIsPopNew] = useState(false) // สถานะป๊อปอัพสร้างหลักสูตรว่าจะให้แสดงหรือไม่
@@ -71,6 +74,9 @@ const AddCourse = () => {
         if (res.data.data !== null) {
             setShowCouses(res.data.data)
         }
+        await axios.post(URL_ALL_EMP).then((res) => {
+            setEmployees(res.data.data)
+        })
     }
 
     // เตรียมหลักสูตรสำหรับใช้ค้นหา
@@ -101,6 +107,28 @@ const AddCourse = () => {
         setIsPopNew(false)
         setIsPopEdit(false)
         setValidated(false);
+        setCheckName(false)
+    }
+
+    // แสดงชื่อตามรหัสพนักงาน
+    const showName = (id) => {
+        id = id.trim()
+        setTrainerID(id)
+        if (/^\d{6}$/.test(id)) {
+            const index = employees.find((item) => item.id === id)
+            if (index != undefined) {
+                setTrainer(index.name_eng)
+                setCheckName(true)
+            } else {
+                setCheckName(false)
+                Swal.fire({
+                    icon: 'error',
+                    title: "รหัสพนักงานไม่ถูกต้อง",
+                    showConfirmButton: false,
+                    timer: 1000
+                })
+            }
+        }
     }
 
     // ตรวจสอบว่าข้อมูลในการสร้างหลักสูตรกรอกครบตามที่กำหนดหรือไม่ ถ้าครบสร้างหลักสูตร
@@ -109,7 +137,18 @@ const AddCourse = () => {
         event.preventDefault();
         event.stopPropagation();
         if (form.checkValidity() === true) {
-            addCourse()
+            if (data.trainer_id === '') {
+                addCourse()
+            } else if (data.trainer_id.length === 6 && checkName) {
+                addCourse()
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: "รหัสพนักงานไม่ถูกต้อง",
+                    showConfirmButton: false,
+                    timer: 1000
+                })
+            }
         }
         setValidated(true);
     };
@@ -118,8 +157,14 @@ const AddCourse = () => {
         const form = event.currentTarget;
         event.preventDefault();
         event.stopPropagation();
+        console.log(data)
         if (form.checkValidity() === true) {
-            editCourse()
+            if (data.trainer_id === '') {
+                editCourse()
+            } else if (data.trainer_id.length === 6 && checkName) {
+                editCourse()
+            }
+
         }
         setValidated(true);
     };
@@ -138,6 +183,8 @@ const AddCourse = () => {
                 setCount(count + 1)
                 setPageCount(Math.ceil((count + 1) / 50))
                 listCourses(pageNumber)
+                listCourses(pageNumber)
+                setCouses([...courses, data])
                 clearData()
             } else {
                 Swal.fire({
@@ -168,6 +215,7 @@ const AddCourse = () => {
                 timer: 1000
             })
             listCourses(pageNumber)
+            searchCourses()
             clearData()
         } else {
             Swal.fire({
@@ -291,11 +339,12 @@ const AddCourse = () => {
                             <Form.Group className="mb-3" as={Col}>
                                 <Form.Label>รหัสผู้สอน :</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     placeholder="XXXXXX"
                                     size="sm"
                                     value={data.trainer_id}
-                                    onChange={(e) => { setTrainerID(e.target.value) }}
+                                    onChange={e => showName(e.target.value)}
+                                    min='1'
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col} xs={7}>
@@ -344,11 +393,12 @@ const AddCourse = () => {
                             <Form.Group className="mb-3" as={Col}>
                                 <Form.Label>จำนวนเวลา(ชั่วโมง)<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     size="sm"
                                     required
                                     value={data.hr}
                                     onChange={(e) => { setHour(e.target.value) }}
+                                    min='1'
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col}>
@@ -439,10 +489,10 @@ const AddCourse = () => {
                             <Form.Group className="mb-3" as={Col}>
                                 <Form.Label>รหัสผู้สอน :</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     placeholder="XXXXXX"
                                     size="sm"
-                                    onChange={(e) => { setTrainerID(e.target.value) }}
+                                    onChange={e => showName(e.target.value)}
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col} xs={6}>
@@ -452,6 +502,7 @@ const AddCourse = () => {
                                     placeholder="XXXXXX"
                                     size="sm"
                                     onChange={(e) => { setTrainer(e.target.value) }}
+                                    value={data.trainer}
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col}>
@@ -487,10 +538,11 @@ const AddCourse = () => {
                             <Form.Group className="mb-3" as={Col}>
                                 <Form.Label>จำนวนเวลา(ชั่วโมง)<span className="red-text">*</span>:</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     size="sm"
                                     required
                                     onChange={(e) => { setHour(e.target.value) }}
+                                    min='1'
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" as={Col}>
@@ -536,11 +588,17 @@ const AddCourse = () => {
             .catch(err => console.log(err))
     }, [])
 
+    useEffect(() => {
+        if (data.trainer_id === '' && (isPopNew || isPopEdit)) {
+            setTrainer('');
+        }
+    }, [data.trainer_id, isPopNew, isPopEdit]);
+
     return (
         <div>
             <ScrollToTop />
             <div className="wrapp-header">
-                <h1 className="head-title">Register Courses</h1>
+                <h1 className="head-title">Course Creation</h1>
             </div>
             <ScrollToTop smooth='true' />
             <Container>
@@ -625,6 +683,9 @@ const AddCourse = () => {
                                             <Icon icon={editIcon} color="#495867" width="25" height="25" onClick={() => {
                                                 setData(item)
                                                 setIsPopEdit(true)
+                                                if (item.trainer != '') {
+                                                    setCheckName(true)
+                                                }
                                             }} />
                                         </td>
                                         <td>

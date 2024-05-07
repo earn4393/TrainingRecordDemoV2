@@ -9,7 +9,6 @@ import '../styles/Styles.css'
 
 const URL_COURSE = '/get-course' // api เรียกดูหลักสูตร
 const URL_TRAINEE = '/get-candidate' // api สำหรับเรียกผู้อบรมในหลักสูตร 
-const URL_TRAINER = '/get-employee' // api เรียกดูชื่อพนักงาน
 const URL_FORM = '/get-form'  //api เรียกดู division ของฟอร์ม
 
 // ปริ้นฟอร์ม FO-ADX-002
@@ -18,7 +17,6 @@ const ReportCourse = () => {
     const [div, setDIV] = useState('') // รหัส division
     const [course, setCourse] = useState([]) // ข้อมูลหลักสูตร id
     const [candidates, setCandidates] = useState([]) // ผู้อบรมที่บันทึกประวัติใน course แล้ว
-    const [trainer, setTrainer] = useState([]) // ข้อมูลของผู้ฝึกอบรม
     const componentRef = useRef()
 
 
@@ -37,9 +35,7 @@ const ReportCourse = () => {
         })
         await axios.post(URL_COURSE, { id: id }).then((res) => {
             if (res.data.data != null) {
-                const trainer_id = res.data.data.trainer_id
                 setCourse(res.data.data)
-                dataTrainer(trainer_id)
             }
         })
         await axios.post(URL_FORM, { id: 'FO-ADX-002' }).then((res) => {
@@ -48,14 +44,8 @@ const ReportCourse = () => {
             }
         })
     }
-    // โหลดข้อมูลผู้ฝึกอบรม
-    const dataTrainer = async (id) => {
-        await axios.post(URL_TRAINER, { id: id }).then((res) => {
-            if (res.data.data != null) {
-                setTrainer(res.data.data)
-            }
-        })
-    }
+
+
     // เริ่มโหลดข้อมูลหลักสูตร
     useEffect(() => {
         dataCourse()
@@ -73,7 +63,7 @@ const ReportCourse = () => {
             </div>
             {/* ฟอร์มเอกสาร */}
             <Container fluid='xl' style={{ fontSize: '12px' }} ref={componentRef}>
-                <div style={{ marginBottom: '30px' }}>
+                <div style={{ marginBottom: '30px' }} >
                     <h6 className="header-train">
                         บันทึกการฝึกอบรม <br /> Training
                         record
@@ -147,16 +137,16 @@ const ReportCourse = () => {
                             <Form.Text className='line-dash' as={Col} xs='2'>{course.trainer}</Form.Text>
 
                             <Form.Label className='text-bold' as={Col} xs='auto'>แผนก (Section) :</Form.Label>
-                            <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{trainer.dep != null ? trainer.dep : '-'}</Form.Text>
+                            <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{course.sec != null ? course.dep : '-'}</Form.Text>
                             <Form.Label className='text-bold' as={Col} xs='auto'>ฝ่าย (Department) :</Form.Label>
-                            <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{trainer.div != null ? trainer.div : '-'}</Form.Text>
+                            <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{course.dep != null ? course.sec : '-'}</Form.Text>
                         </Form.Group>
                         <Form.Group className="md-5" as={Row}>
                             <Col xs='4' />
                             <Form.Label className='text-bold' as={Col} xs='auto'>ตำแหน่ง (Position) :</Form.Label>
-                            <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{trainer.pos != null ? trainer.pos : '-'}</Form.Text>
+                            <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{course.pos != null ? course.pos : '-'}</Form.Text>
                             <Form.Label className='text-bold' as={Col} xs='auto'>ลำดับขั้น (Qualification) :</Form.Label>
-                            <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{trainer.cate != null ? trainer.cate : '-'}</Form.Text>
+                            <Form.Text className='line-dash' style={{ fontSize: '10px' }} as={Col}>{course.qua != null ? course.qua : '-'}</Form.Text>
                         </Form.Group>
                         <Form.Group className="md-5" as={Row}>
                             <Form.Label className='text-bold' as={Col} xs='auto'>รายละเอียดการฝึกอบรม (Training description) :</Form.Label>

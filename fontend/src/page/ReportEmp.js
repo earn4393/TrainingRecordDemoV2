@@ -10,7 +10,7 @@ const URL_COURSE = '/get-all-my-course' // api เรียกหลักสู
 const URL_FORM = '/get-form' //api เรียกดู division ของฟอร์ม
 
 const ReportEmp = () => {
-    const { id } = useParams() // รับรหัสหลักสูตรจากหน้าก่อนหน้า
+    const { id } = useParams() // รับรหัสพนักงานจากหน้าก่อนหน้า
     const [div, setDIV] = useState('') // รหัส division
     const [emp, setEmp] = useState(null) // ข้อมูลพนักงาน
     const [myTrain, setMyTrain] = useState(null) //ข้อมูลหลักสูตรทั้งหมดที่พนักงานเรียน
@@ -60,19 +60,19 @@ const ReportEmp = () => {
                                 <Form.Label className='text-bold'>ชื่อ - สกุล</Form.Label>
                             </Col>
                             <Col xs='4'>
-                                <Form.Text className='line-dash'>{emp.eng_name}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.eng_name != null ? emp.eng_name : '-'}</Form.Text>
                             </Col>
                             <Col xs='auto'>
                                 <Form.Label className='text-bold'>วัน/เดือน/ปีเกิด</Form.Label>
                             </Col>
                             <Col xs='3'>
-                                <Form.Text className='line-dash'>{emp.birth}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.birth != null ? emp.birth : '-'}</Form.Text>
                             </Col>
                             <Col xs='auto'>
                                 <Form.Label className='text-bold'>อายุ</Form.Label>
                             </Col>
                             <Col xs='1'>
-                                <Form.Text className='line-dash'>{emp.year}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.year != null ? emp.year : '-'}</Form.Text>
                             </Col>
                             <Col xs='auto'>
                                 <Form.Text className='text-bold'>ปี</Form.Text>
@@ -83,19 +83,19 @@ const ReportEmp = () => {
                                 <Form.Label className='text-bold'>ระดับการศึกษา</Form.Label>
                             </Col>
                             <Col xs='4'>
-                                <Form.Text className='line-dash'>{emp.degree}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.degree != null ? emp.degree : '-'}</Form.Text>
                             </Col>
                             <Col xs='auto'>
                                 <Form.Label className='text-bold'>วันที่เริ่มงาน</Form.Label>
                             </Col>
                             <Col xs='2'>
-                                <Form.Text className='line-dash'>{emp.join}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.join != null ? emp.join : '-'}</Form.Text>
                             </Col>
                             <Col xs='auto'>
                                 <Form.Label className='text-bold'>รหัสพนักงาน</Form.Label>
                             </Col>
                             <Col xs='2'>
-                                <Form.Text className='line-dash'>{emp.id}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.id != null ? emp.id : '-'}</Form.Text>
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row}>
@@ -103,19 +103,19 @@ const ReportEmp = () => {
                                 <Form.Label className='text-bold'>แผนก</Form.Label>
                             </Col>
                             <Col xs='4'>
-                                <Form.Text className='line-dash'>{emp.dep}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.dep != null ? emp.dep : '-'}</Form.Text>
                             </Col>
                             <Col xs='auto'>
                                 <Form.Label className='text-bold'>ฝ่าย</Form.Label>
                             </Col>
                             <Col xs='2'>
-                                <Form.Text className='line-dash'>{emp.div}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.div != null ? emp.div : '-'}</Form.Text>
                             </Col>
                             <Col xs='auto'>
                                 <Form.Label className='text-bold'>ลำดับชั้น</Form.Label>
                             </Col>
                             <Col xs='2'>
-                                <Form.Text className='line-dash'>{emp.cate}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.cate != null ? emp.cate : '-'}</Form.Text>
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row}>
@@ -123,7 +123,7 @@ const ReportEmp = () => {
                                 <Form.Label className='text-bold'>ตำแหน่ง</Form.Label>
                             </Col>
                             <Col xs='3'>
-                                <Form.Text className='line-dash'>{emp.pos}</Form.Text>
+                                <Form.Text className='line-dash'>{emp.pos != null ? emp.pos : '-'}</Form.Text>
                             </Col>
                         </Form.Group>
                     </Container>
